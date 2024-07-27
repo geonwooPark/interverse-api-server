@@ -8,9 +8,9 @@ import {
 
 const router = Router();
 
-router.get("/", getComments);
+router.get("/:parentId", getComments);
 router.post("/", createComment);
-router.delete("/:id", deleteComment);
-router.patch("/:id", updateComment);
+router.delete("/commentId", deleteComment);
+router.patch("/:commentId", updateComment);
 
 export default router;

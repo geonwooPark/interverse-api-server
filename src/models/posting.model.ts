@@ -6,7 +6,8 @@ export interface PostingDocument extends Document {
   description?: string;
   thumbnailURL?: string;
   content?: string;
-  views?: number;
+  viewCount?: number;
+  likeCount?: number;
 }
 
 const postingModel = new Schema(
@@ -28,7 +29,11 @@ const postingModel = new Schema(
     content: {
       type: String,
     },
-    views: {
+    viewCount: {
+      type: Number,
+      default: 0,
+    },
+    likeCount: {
       type: Number,
       default: 0,
     },

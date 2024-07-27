@@ -1,12 +1,15 @@
 import { RequestHandler } from "express";
 import Posting from "../models/posting.model";
+import Comment from "../models/comment.model";
+import ReplyComment from "../models/replyComment.model";
+import Like from "../models/like.model";
 import { PostingDocument } from "../models/posting.model";
 
 export const getAllPosting: RequestHandler = async (req, res) => {
   try {
     const postings = await Posting.find<PostingDocument>({});
 
-    return res.status(200).json(postings);
+    return res.status(200).json({ postings });
   } catch (error) {
     return res.status(500).json({ error: "서버 내부 오류" });
   }
@@ -33,7 +36,7 @@ export const getSinglePosting: RequestHandler = async (req, res) => {
       return res.status(404).json({ error: "게시글을 찾을 수 없습니다." });
     }
 
-    return res.status(200).json(posting);
+    return res.status(200).json({ posting });
   } catch (error) {
     return res.status(500).json({ error: "서버 내부 오류" });
   }
@@ -56,9 +59,19 @@ export const createPosting: RequestHandler = async (req, res) => {
   }
 
   try {
-    const newPosting = await Posting.create<PostingDocument>(req.body);
+    const newPosting = await Posting.create(req.body);
 
-    return res.status(201).json(newPosting);
+    await Comment.create({
+      parentId: newPosting._id,
+    });
+    await ReplyComment.create({
+      parentId: newPosting._id,
+    });
+    await Like.create({
+      parentId: newPosting._id,
+    });
+
+    return res.status(201).json({ newPosting });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }
@@ -70,15 +83,15 @@ export const deletePosting: RequestHandler = async (req, res) => {
   try {
     await Posting.findByIdAndDelete<PostingDocument>(postingId);
 
-    return res.status(200).json({ postingId, message: "글 삭제 성공!" });
+    return res.status(200).json({ deletedId: postingId });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
 
 export const updatePosting: RequestHandler = async (req, res) => {
-  const { postingId, category, title, description, thumbnailURL, content } =
-    req.body;
+  const { postingId } = req.params;
+  const { category, title, description, thumbnailURL, content } = req.body;
 
   if (!category) {
     return res.status(406).json({ error: "카테고리를 입력해주세요." });

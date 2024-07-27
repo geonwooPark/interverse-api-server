@@ -1,7 +1,8 @@
 import { Schema, model } from "mongoose";
 
-interface Comment {
+interface ReplyComment {
   commentId: string;
+  replyCommentId: string;
   user: {
     userImage: string;
     userId: string;
@@ -12,13 +13,13 @@ interface Comment {
   isDeleted: boolean;
 }
 
-export interface CommentDocument extends Document {
+export interface ReplyCommentDocument extends Document {
   parentId: string;
-  comments: Comment[];
+  comments: ReplyComment[];
   path?: string;
 }
 
-const commentModel = new Schema(
+const replyCommentModel = new Schema(
   {
     parentId: {
       type: String,
@@ -35,4 +36,4 @@ const commentModel = new Schema(
   { timestamps: true, versionKey: false }
 );
 
-export default model<CommentDocument>("Comment", commentModel);
+export default model<ReplyCommentDocument>("ReplyComment", replyCommentModel);
