@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getLikeUsers, toggleLike } from "src/controllers/like.controller";
+import { getLikeUsers, toggleLike } from "../controllers/like.controller";
 
 const router = Router();
 
