@@ -19,7 +19,7 @@ export const getSinglePosting: RequestHandler = async (req, res) => {
   const { postingId } = req.params;
 
   if (!postingId) {
-    return res.status(400).json({ error: "postingId를 제공해주세요." });
+    return res.status(400).json({ error: "id를 제공해주세요." });
   }
 
   try {
@@ -83,6 +83,14 @@ export const deletePosting: RequestHandler = async (req, res) => {
   try {
     await Posting.findByIdAndDelete<PostingDocument>(postingId);
 
+    // 포함된 이미지 삭제
+
+    await Promise.all([
+      Comment.findOneAndDelete({ parentId: postingId }),
+      ReplyComment.findOneAndDelete({ parentId: postingId }),
+      Like.findOneAndDelete({ parentId: postingId }),
+    ]);
+
     return res.status(200).json({ deletedId: postingId });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
@@ -91,7 +99,7 @@ export const deletePosting: RequestHandler = async (req, res) => {
 
 export const updatePosting: RequestHandler = async (req, res) => {
   const { postingId } = req.params;
-  const { category, title, description, thumbnailURL, content } = req.body;
+  const { category, title, description } = req.body;
 
   if (!category) {
     return res.status(406).json({ error: "카테고리를 입력해주세요." });
@@ -109,7 +117,7 @@ export const updatePosting: RequestHandler = async (req, res) => {
   try {
     const updateResult = await Posting.updateOne<PostingDocument>(
       { _id: postingId },
-      { category, title, description, thumbnailURL, content }
+      { ...req.body }
     );
 
     if (updateResult.modifiedCount === 0) {
