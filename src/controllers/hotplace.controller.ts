@@ -67,7 +67,7 @@ export const createHotplace: RequestHandler = async (req, res) => {
 
     return res.status(201).json({ newHotplace });
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "서버 내부 오류" });
   }
 };
 
@@ -87,7 +87,7 @@ export const deleteHotplace: RequestHandler = async (req, res) => {
 
     return res.status(200).json({ deletedId: hotplaceId });
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "서버 내부 오류" });
   }
 };
 
@@ -108,7 +108,7 @@ export const updateHotplace: RequestHandler = async (req, res) => {
 
     return res.status(200).json({ message: "글 수정 성공!" });
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "서버 내부 오류" });
   }
 };
 
@@ -124,6 +124,6 @@ export const getAutocompleteResults: RequestHandler = async (req, res) => {
 
     return res.status(200).json({ hotplaces });
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "서버 내부 오류" });
   }
 };

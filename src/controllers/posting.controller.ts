@@ -61,19 +61,24 @@ export const createPosting: RequestHandler = async (req, res) => {
   try {
     const newPosting = await Posting.create(req.body);
 
-    await Comment.create({
-      parentId: newPosting._id,
-    });
-    await ReplyComment.create({
-      parentId: newPosting._id,
-    });
-    await Like.create({
-      parentId: newPosting._id,
-    });
+    await Promise.all([
+      Comment.create({
+        parentId: newPosting._id,
+        title: newPosting.title,
+      }),
+      ReplyComment.create({
+        parentId: newPosting._id,
+        title: newPosting.title,
+      }),
+      Like.create({
+        parentId: newPosting._id,
+        title: newPosting.title,
+      }),
+    ]);
 
     return res.status(201).json({ newPosting });
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "서버 내부 오류" });
   }
 };
 
@@ -93,7 +98,7 @@ export const deletePosting: RequestHandler = async (req, res) => {
 
     return res.status(200).json({ deletedId: postingId });
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "서버 내부 오류" });
   }
 };
 
@@ -128,6 +133,22 @@ export const updatePosting: RequestHandler = async (req, res) => {
 
     return res.status(200).json({ message: "글 수정 성공!" });
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "서버 내부 오류" });
+  }
+};
+
+export const getNewPostings: RequestHandler = async (req, res) => {
+  const { limit } = req.query;
+
+  try {
+    const postings = await Posting.find<PostingDocument>({})
+      .sort({
+        createdAt: -1,
+      })
+      .limit(parseInt(limit as string) || 5);
+
+    return res.status(200).json({ postings });
+  } catch (error) {
+    return res.status(500).json({ error: "서버 내부 오류" });
   }
 };
