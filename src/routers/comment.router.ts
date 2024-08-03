@@ -10,7 +10,7 @@ const router = Router();
 
 router.get("/:parentId", getComments);
 router.post("/", createComment);
-router.delete("/commentId", deleteComment);
+router.delete("/:commentId", deleteComment);
 router.patch("/:commentId", updateComment);
 
 export default router;

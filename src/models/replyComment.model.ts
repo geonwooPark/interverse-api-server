@@ -10,7 +10,7 @@ interface ReplyComment {
   };
   content: string;
   likeCount: number;
-  isDeleted: boolean;
+  createdAt: Date;
 }
 
 export interface ReplyCommentDocument extends Document {

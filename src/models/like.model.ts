@@ -1,7 +1,11 @@
 import { Schema, model } from "mongoose";
 
 export interface LikeDocument extends Document {
-  parentId: string;
+  parent: {
+    title: string;
+    parentId: string;
+    path: string;
+  };
   likes: {
     userImage: string;
     userId: string;
@@ -12,9 +16,8 @@ export interface LikeDocument extends Document {
 
 const likeModel = new Schema(
   {
-    parentId: {
-      type: String,
-      unique: true,
+    parent: {
+      type: Object,
       required: true,
     },
     likes: {

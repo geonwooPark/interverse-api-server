@@ -7,9 +7,15 @@ interface Comment {
     userId: string;
     userName: string;
   };
+  parent: {
+    title: string;
+    parentId: string;
+    path: string;
+  };
   content: string;
   likeCount: number;
   isDeleted: boolean;
+  createdAt: Date;
 }
 
 export interface CommentDocument extends Document {
