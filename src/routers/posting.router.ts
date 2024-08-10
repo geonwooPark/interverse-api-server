@@ -13,9 +13,9 @@ const router = Router();
 
 router.get("/", getAllPosting);
 router.get("/:postingId", getSinglePosting);
-router.post("/", createPosting);
-router.delete("/:postingId", deletePosting);
-router.patch("/:postingId", updatePosting);
+router.post("/", authMiddleware("admin"), createPosting);
+router.delete("/:postingId", authMiddleware("admin"), deletePosting);
+router.patch("/:postingId", authMiddleware("admin"), updatePosting);
 
 router.get("/new-arrivals", getNewPostings);
 

@@ -4,6 +4,7 @@ import Comment from "../models/comment.model";
 import ReplyComment from "../models/replyComment.model";
 import Like from "../models/like.model";
 import { PostingDocument } from "../models/posting.model";
+import { CustomRequest } from "src/middlewares/auth.middleware";
 
 export const getAllPosting: RequestHandler = async (req, res) => {
   try {
@@ -42,7 +43,10 @@ export const getSinglePosting: RequestHandler = async (req, res) => {
   }
 };
 
-export const createPosting: RequestHandler = async (req, res) => {
+export const createPosting: RequestHandler = async (
+  req: CustomRequest,
+  res
+) => {
   const { category, title, description } = req.body;
 
   if (!category) {

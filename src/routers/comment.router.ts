@@ -5,12 +5,13 @@ import {
   getComments,
   updateComment,
 } from "../controllers/comment.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 
 router.get("/:parentId", getComments);
-router.post("/", createComment);
-router.delete("/:commentId", deleteComment);
-router.patch("/:commentId", updateComment);
+router.post("/", authMiddleware, createComment);
+router.delete("/:commentId", authMiddleware, deleteComment);
+router.patch("/:commentId", authMiddleware, updateComment);
 
 export default router;
