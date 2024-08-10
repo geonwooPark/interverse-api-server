@@ -7,6 +7,7 @@ import {
   updatePosting,
   getNewPostings,
 } from "../controllers/posting.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 

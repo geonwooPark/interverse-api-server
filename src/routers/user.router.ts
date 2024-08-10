@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { getLikedPost, getMyComments } from "../controllers/user.controller";
+import {
+  createUser,
+  getLikedPost,
+  getMyComments,
+  getAuth,
+} from "../controllers/user.controller";
 
 const router = Router();
 
-router.get("/login", getMyComments);
-router.post("/register", getMyComments);
+router.post("/login", getAuth);
+router.post("/register", createUser);
 
 router.get("/my-comment/:userId", getMyComments);
 router.get("/liked-post/:userId", getLikedPost);
