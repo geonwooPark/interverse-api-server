@@ -1,6 +1,7 @@
 require("dotenv").config();
 import "./db";
 import express from "express";
+import cors from "cors";
 import postingRouter from "./routers/posting.router";
 import commentRouter from "./routers/comment.router";
 import replyCommentRouter from "./routers/replyComment.router";
@@ -9,6 +10,10 @@ import checklistRouter from "./routers/checklist.router";
 import userRouter from "./routers/user.router";
 
 const app = express();
+
+app.use(
+  cors({ origin: ["http://localhost:3000", "https://www.ventileco.site"] })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
