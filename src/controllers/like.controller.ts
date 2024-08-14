@@ -1,11 +1,13 @@
 import { RequestHandler } from "express";
 import Like, { LikeDocument } from "../models/like.model";
 import Posting, { PostingDocument } from "../models/posting.model";
+import { connectDB } from "src/db";
 
 export const getLikeUsers: RequestHandler = async (req, res) => {
   const { parentId } = req.params;
 
   try {
+    await connectDB();
     const likes = await Like.findOne<LikeDocument>({ parentId });
 
     return res.status(200).json({ likes: likes || [] });
@@ -19,6 +21,7 @@ export const toggleLike: RequestHandler = async (req, res) => {
   const { userId, userImage, userName } = req.body;
 
   try {
+    await connectDB();
     const likes = await Like.findOne<LikeDocument>({ parentId });
 
     if (!likes) {

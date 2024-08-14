@@ -3,6 +3,7 @@ import Hotplace, { HotplaceDocument } from "../models/hotplace.model";
 import Comment from "../models/comment.model";
 import ReplyComment from "../models/replyComment.model";
 import Like from "../models/like.model";
+import { connectDB } from "src/db";
 
 export const getAllHotplace: RequestHandler = async (req, res) => {
   const { keyword, category, gu } = req.body;
@@ -17,6 +18,7 @@ export const getAllHotplace: RequestHandler = async (req, res) => {
   ];
 
   try {
+    await connectDB();
     const hotplaces = await Hotplace.find<HotplaceDocument>({
       $and: options,
     }).sort({
@@ -37,6 +39,7 @@ export const getSingleHotplace: RequestHandler = async (req, res) => {
   }
 
   try {
+    await connectDB();
     const hotplace = await Hotplace.findOne<HotplaceDocument>({
       _id: hotplaceId,
     });
@@ -53,6 +56,7 @@ export const getSingleHotplace: RequestHandler = async (req, res) => {
 
 export const createHotplace: RequestHandler = async (req, res) => {
   try {
+    await connectDB();
     const newHotplace = await Hotplace.create(req.body);
 
     await Comment.create({
@@ -75,6 +79,7 @@ export const deleteHotplace: RequestHandler = async (req, res) => {
   const { hotplaceId } = req.params;
 
   try {
+    await connectDB();
     // 포함된 이미지 삭제
 
     await Hotplace.findByIdAndDelete<HotplaceDocument>(hotplaceId);
@@ -95,6 +100,7 @@ export const updateHotplace: RequestHandler = async (req, res) => {
   const { hotplaceId } = req.params;
 
   try {
+    await connectDB();
     const updateResult = await Hotplace.updateOne<HotplaceDocument>(
       { _id: hotplaceId },
       { ...req.body }
@@ -113,11 +119,11 @@ export const updateHotplace: RequestHandler = async (req, res) => {
 };
 
 export const getAutocompleteResults: RequestHandler = async (req, res) => {
+  const { keyword } = req.params;
+  const regexPattern = new RegExp(`^${keyword}`, "i");
+
   try {
-    const { keyword } = req.params;
-
-    const regexPattern = new RegExp(`^${keyword}`, "i");
-
+    await connectDB();
     const hotplaces = await Hotplace.find({
       store: { $regex: regexPattern },
     }).limit(5);

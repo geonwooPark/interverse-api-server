@@ -7,6 +7,7 @@ import ReplyComment, {
 } from "../models/replyComment.model";
 import bcrypt from "bcrypt";
 import { getToken } from "../utils/jwt";
+import { connectDB } from "src/db";
 
 export const createUser: RequestHandler = async (req, res) => {
   const { email, password, name } = req.body;
@@ -32,6 +33,7 @@ export const createUser: RequestHandler = async (req, res) => {
   }
 
   try {
+    await connectDB();
     const existedUser = await User.findOne<UserDocument>({ email });
     if (existedUser) {
       return res.status(409).json({ message: "이미 존재하는 이메일입니다." });
@@ -53,6 +55,7 @@ export const getAuth: RequestHandler = async (req, res) => {
   }
 
   try {
+    await connectDB();
     const user = await User.findOne<UserDocument>({ email });
     if (!user) {
       return res.status(409).json({ message: "존재하지 않는 회원입니다." });
@@ -81,6 +84,7 @@ export const getMyComments: RequestHandler = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    await connectDB();
     const [myComments, myReplyComments] = await Promise.all([
       Comment.find<CommentDocument>({
         comments: {
@@ -123,6 +127,7 @@ export const getLikedPost: RequestHandler = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    await connectDB();
     const likedPost = await Like.find<LikeDocument>({
       likes: {
         $elemMatch: {

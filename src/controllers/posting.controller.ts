@@ -5,9 +5,11 @@ import ReplyComment from "../models/replyComment.model";
 import Like from "../models/like.model";
 import { PostingDocument } from "../models/posting.model";
 import { CustomRequest } from "src/middlewares/auth.middleware";
+import { connectDB } from "src/db";
 
 export const getAllPosting: RequestHandler = async (req, res) => {
   try {
+    await connectDB();
     const postings = await Posting.find<PostingDocument>({});
 
     return res.status(200).json({ postings });
@@ -24,6 +26,7 @@ export const getSinglePosting: RequestHandler = async (req, res) => {
   }
 
   try {
+    await connectDB();
     const posting = await Posting.findByIdAndUpdate<PostingDocument>(
       {
         _id: postingId,
@@ -63,6 +66,7 @@ export const createPosting: RequestHandler = async (
   }
 
   try {
+    await connectDB();
     const newPosting = await Posting.create(req.body);
 
     await Promise.all([
@@ -90,6 +94,7 @@ export const deletePosting: RequestHandler = async (req, res) => {
   const { postingId } = req.params;
 
   try {
+    await connectDB();
     await Posting.findByIdAndDelete<PostingDocument>(postingId);
 
     // 포함된 이미지 삭제
@@ -124,6 +129,7 @@ export const updatePosting: RequestHandler = async (req, res) => {
   }
 
   try {
+    await connectDB();
     const updateResult = await Posting.updateOne<PostingDocument>(
       { _id: postingId },
       { ...req.body }
@@ -145,6 +151,7 @@ export const getNewPostings: RequestHandler = async (req, res) => {
   const { limit } = req.query;
 
   try {
+    await connectDB();
     const postings = await Posting.find<PostingDocument>({})
       .sort({
         createdAt: -1,

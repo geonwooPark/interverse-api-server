@@ -2,11 +2,13 @@ import { RequestHandler } from "express";
 import Checklist, { ChecklistDocument } from "../models/checklist.model";
 import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
+import { connectDB } from "src/db";
 
 export const getChecklist: RequestHandler = async (req, res) => {
   const { date } = req.params;
 
   try {
+    await connectDB();
     const result = await Checklist.findOne<ChecklistDocument>({
       date,
     });
@@ -31,6 +33,7 @@ export const createCheckitem: RequestHandler = async (req, res) => {
   }
 
   try {
+    await connectDB();
     await Checklist.updateOne(
       {
         date: today,
@@ -59,6 +62,7 @@ export const deleteCheckitem: RequestHandler = async (req, res) => {
   const today = dayjs().format("YYYY-MM-DD");
 
   try {
+    await connectDB();
     await Checklist.updateOne(
       {
         date: today,
@@ -77,6 +81,7 @@ export const updateCheckitem: RequestHandler = async (req, res) => {
   const today = dayjs().format("YYYY-MM-DD");
 
   try {
+    await connectDB();
     await Checklist.updateOne(
       {
         date: today,

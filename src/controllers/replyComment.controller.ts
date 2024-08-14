@@ -4,11 +4,13 @@ import Posting from "../models/posting.model";
 import { ReplyCommentDocument } from "../models/replyComment.model";
 import { v4 as uuid } from "uuid";
 import { PostingDocument } from "src/models/posting.model";
+import { connectDB } from "src/db";
 
 export const getReplyComments: RequestHandler = async (req, res) => {
   const { parentId } = req.params;
 
   try {
+    await connectDB();
     const replyComments = await ReplyComment.findOne<ReplyCommentDocument>({
       parentId,
     });
@@ -25,6 +27,7 @@ export const createReplyComment: RequestHandler = async (req, res) => {
   const { parentId, commentId, content } = req.body;
 
   try {
+    await connectDB();
     const [updatedComment] = await Promise.all([
       ReplyComment.findOneAndUpdate<ReplyCommentDocument>(
         { parentId },
@@ -68,6 +71,7 @@ export const deleteReplyComment: RequestHandler = async (req, res) => {
   const { parentId } = req.body;
 
   try {
+    await connectDB();
     await Promise.all([
       ReplyComment.findOneAndUpdate<ReplyCommentDocument>(
         {
@@ -97,6 +101,7 @@ export const updateReplyComment: RequestHandler = async (req, res) => {
   const { parentId, content } = req.body;
 
   try {
+    await connectDB();
     await ReplyComment.findOneAndUpdate<ReplyCommentDocument>(
       {
         parentId,

@@ -5,11 +5,13 @@ import Posting from "../models/posting.model";
 import { CommentDocument } from "../models/comment.model";
 import { v4 as uuid } from "uuid";
 import { PostingDocument } from "src/models/posting.model";
+import { connectDB } from "src/db";
 
 export const getComments: RequestHandler = async (req, res) => {
   const { parentId } = req.params;
 
   try {
+    await connectDB();
     const comments = await Comment.findOne<CommentDocument>({ parentId });
 
     return res
@@ -24,6 +26,7 @@ export const createComment: RequestHandler = async (req, res) => {
   const { parentId, content } = req.body;
 
   try {
+    await connectDB();
     const [updatedComment] = await Promise.all([
       Comment.findOneAndUpdate<CommentDocument>(
         { parentId },
@@ -67,6 +70,7 @@ export const deleteComment: RequestHandler = async (req, res) => {
   const { parentId } = req.body;
 
   try {
+    await connectDB();
     // 댓글에 답글이 있다면 isDeleted만 변경하고 댓글이 없다면 삭제
     const replyComment = await ReplyComment.findOne<CommentDocument>(
       {
@@ -117,6 +121,7 @@ export const updateComment: RequestHandler = async (req, res) => {
   const { parentId, content } = req.body;
 
   try {
+    await connectDB();
     await Comment.findOneAndUpdate<CommentDocument>(
       {
         parentId,

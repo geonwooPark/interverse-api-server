@@ -1,6 +1,16 @@
 import mongoose from "mongoose";
 
-mongoose
-  .connect(process.env.DATABASE_URL as string)
-  .then(() => console.log("DB 연결 성공"))
-  .catch((err) => console.log("DB 연결 실패", err));
+let connection: mongoose.Connection;
+
+export const connectDB = async () => {
+  if (connection) return;
+
+  try {
+    const db = await mongoose.connect(process.env.DATABASE_URL as string);
+
+    connection = db.connection;
+  } catch (err) {
+    console.error("Database connection error:", err);
+    throw err;
+  }
+};

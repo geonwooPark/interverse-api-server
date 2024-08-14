@@ -3,9 +3,11 @@ import Book, { BookDocument } from "../models/book.model";
 import Comment from "../models/comment.model";
 import ReplyComment from "../models/replyComment.model";
 import Like from "../models/like.model";
+import { connectDB } from "src/db";
 
 export const getAllBook: RequestHandler = async (req, res) => {
   try {
+    await connectDB();
     const books = await Book.find<BookDocument>({});
 
     return res.status(200).json({ books });
@@ -22,6 +24,7 @@ export const getSingleBook: RequestHandler = async (req, res) => {
   }
 
   try {
+    await connectDB();
     const book = await Book.findOne<BookDocument>({
       _id: bookId,
     });
@@ -38,6 +41,7 @@ export const getSingleBook: RequestHandler = async (req, res) => {
 
 export const createBook: RequestHandler = async (req, res) => {
   try {
+    await connectDB();
     const newBook = await Book.create(req.body);
 
     await Comment.create({
@@ -60,6 +64,7 @@ export const deleteBook: RequestHandler = async (req, res) => {
   const { bookId } = req.params;
 
   try {
+    await connectDB();
     // 포함된 이미지 삭제
 
     await Book.findByIdAndDelete<BookDocument>(bookId);
@@ -80,6 +85,7 @@ export const updateBook: RequestHandler = async (req, res) => {
   const { bookId } = req.params;
 
   try {
+    await connectDB();
     const updateResult = await Book.updateOne<BookDocument>(
       { _id: bookId },
       { ...req.body }
