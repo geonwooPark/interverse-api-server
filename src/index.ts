@@ -11,6 +11,7 @@ import userRouter from "./routers/user.router";
 
 const app = express();
 
+app.use(express.static("public"));
 app.use(
   cors({ origin: ["http://localhost:3000", "https://www.ventileco.site"] })
 );
