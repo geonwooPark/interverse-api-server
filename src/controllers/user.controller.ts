@@ -7,7 +7,7 @@ import ReplyComment, {
 } from "../models/replyComment.model";
 import bcrypt from "bcrypt";
 import { getToken } from "../utils/jwt";
-import { connectDB } from "src/db";
+import { connectDB } from "../db";
 
 export const createUser: RequestHandler = async (req, res) => {
   const { email, password, name } = req.body;

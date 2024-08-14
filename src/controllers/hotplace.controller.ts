@@ -3,7 +3,7 @@ import Hotplace, { HotplaceDocument } from "../models/hotplace.model";
 import Comment from "../models/comment.model";
 import ReplyComment from "../models/replyComment.model";
 import Like from "../models/like.model";
-import { connectDB } from "src/db";
+import { connectDB } from "../db";
 
 export const getAllHotplace: RequestHandler = async (req, res) => {
   const { keyword, category, gu } = req.body;

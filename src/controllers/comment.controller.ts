@@ -5,7 +5,7 @@ import Posting from "../models/posting.model";
 import { CommentDocument } from "../models/comment.model";
 import { v4 as uuid } from "uuid";
 import { PostingDocument } from "src/models/posting.model";
-import { connectDB } from "src/db";
+import { connectDB } from "../db";
 
 export const getComments: RequestHandler = async (req, res) => {
   const { parentId } = req.params;

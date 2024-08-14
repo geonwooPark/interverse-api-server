@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import Like, { LikeDocument } from "../models/like.model";
 import Posting, { PostingDocument } from "../models/posting.model";
-import { connectDB } from "src/db";
+import { connectDB } from "../db";
 
 export const getLikeUsers: RequestHandler = async (req, res) => {
   const { parentId } = req.params;

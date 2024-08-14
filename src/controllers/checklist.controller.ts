@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import Checklist, { ChecklistDocument } from "../models/checklist.model";
 import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
-import { connectDB } from "src/db";
+import { connectDB } from "../db";
 
 export const getChecklist: RequestHandler = async (req, res) => {
   const { date } = req.params;
