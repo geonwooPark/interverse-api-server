@@ -41,8 +41,8 @@ if (process.env.NODE_ENV == "production") {
     ),
   };
 
-  https.createServer(options, app).listen(process.env.PORT || 3000, () => {
-    console.log(`${process.env.PORT || 3000}PORT 실행중..`);
+  https.createServer(options, app).listen(process.env.PORT || 443, () => {
+    console.log(`${process.env.PORT || 443}PORT 실행중..`);
   });
 } else {
   app.listen(process.env.PORT || 3000, () => {
