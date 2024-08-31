@@ -5,7 +5,7 @@ import User, { UserDocument } from "../models/user.model";
 import ReplyComment, {
   ReplyCommentDocument,
 } from "../models/replyComment.model";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import { getToken } from "../utils/jwt";
 import { connectDB } from "../db";
 
@@ -13,7 +13,7 @@ export const createUser: RequestHandler = async (req, res) => {
   const { email, password, name } = req.body;
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,15}$/;
-  const hashedPassword = await bcrypt.hash(password, 12);
+  const hashedPassword = await bcryptjs.hash(password, 12);
 
   if (name.trim() === "" || email.trim() === "" || password.trim() === "") {
     return res.status(409).json({ message: "빈칸을 모두 입력해주세요." });
@@ -61,7 +61,7 @@ export const getAuth: RequestHandler = async (req, res) => {
       return res.status(409).json({ message: "존재하지 않는 회원입니다." });
     }
 
-    const pwcheck = await bcrypt.compare(password, user.password);
+    const pwcheck = await bcryptjs.compare(password, user.password);
     if (!pwcheck) {
       return res.status(409).json({ message: "잘못된 비밀번호입니다." });
     }
