@@ -5,7 +5,7 @@ import {
   getAllBook,
   getSingleBook,
   updateBook,
-} from "src/controllers/book.controller";
+} from "../controllers/book.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();

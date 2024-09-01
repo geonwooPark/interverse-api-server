@@ -5,6 +5,8 @@ import fs from "fs";
 import https from "https";
 import cors from "cors";
 import postingRouter from "./routers/posting.router";
+import hotplaceRouter from "./routers/hotplace.router";
+import bookRouter from "./routers/book.router";
 import commentRouter from "./routers/comment.router";
 import replyCommentRouter from "./routers/replyComment.router";
 import likeRouter from "./routers/like.router";
@@ -22,6 +24,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/posting", postingRouter);
+app.use("/hotplace", hotplaceRouter);
+app.use("/book", bookRouter);
 app.use("/comment", commentRouter);
 app.use("/reply-comment", replyCommentRouter);
 app.use("/like", likeRouter);
