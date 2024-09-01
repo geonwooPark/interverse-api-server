@@ -35,13 +35,13 @@ app.use("/user", userRouter);
 if (process.env.NODE_ENV == "production") {
   const options = {
     ca: fs.readFileSync(
-      `/etc/letsencrypt/live/${process.env.DOMAIN as string}/fullchain2.pem`
+      `/etc/letsencrypt/live/${process.env.DOMAIN as string}/fullchain.pem`
     ),
     key: fs.readFileSync(
-      `/etc/letsencrypt/live/${process.env.DOMAIN as string}/privkey2.pem`
+      `/etc/letsencrypt/live/${process.env.DOMAIN as string}/privkey.pem`
     ),
     cert: fs.readFileSync(
-      `/etc/letsencrypt/live/${process.env.DOMAIN as string}/cert2.pem`
+      `/etc/letsencrypt/live/${process.env.DOMAIN as string}/cert.pem`
     ),
   };
 
