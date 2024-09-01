@@ -5,13 +5,13 @@ import {
   getChecklist,
   updateCheckitem,
 } from "../controllers/checklist.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import { adminGuardMiddleware } from "../middlewares/adminGuard.middleware";
 
 const router = Router();
 
 router.get("/:date", getChecklist);
-router.post("/", authMiddleware("admin"), createCheckitem);
-router.delete("/", authMiddleware("admin"), deleteCheckitem);
-router.patch("/", authMiddleware("admin"), updateCheckitem);
+router.post("/", adminGuardMiddleware, createCheckitem);
+router.delete("/", adminGuardMiddleware, deleteCheckitem);
+router.patch("/", adminGuardMiddleware, updateCheckitem);
 
 export default router;

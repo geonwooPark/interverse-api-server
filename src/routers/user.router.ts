@@ -5,14 +5,14 @@ import {
   getMyComments,
   getAuth,
 } from "../controllers/user.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import { userGuardMiddleware } from "../middlewares/userGuard.middleware";
 
 const router = Router();
 
 router.post("/login", getAuth);
 router.post("/register", createUser);
 
-router.get("/my-comment/:userId", authMiddleware, getMyComments);
-router.get("/liked-post/:userId", authMiddleware, getLikedPost);
+router.get("/my-comment/:userId", userGuardMiddleware, getMyComments);
+router.get("/liked-post/:userId", userGuardMiddleware, getLikedPost);
 
 export default router;

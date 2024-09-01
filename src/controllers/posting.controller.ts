@@ -4,7 +4,7 @@ import Comment from "../models/comment.model";
 import ReplyComment from "../models/replyComment.model";
 import Like from "../models/like.model";
 import { PostingDocument } from "../models/posting.model";
-import { CustomRequest } from "src/middlewares/auth.middleware";
+import { CustomRequest } from "src/middlewares/userGuard.middleware";
 import { connectDB } from "../db";
 
 export const getAllPosting: RequestHandler = async (req, res) => {

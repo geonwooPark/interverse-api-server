@@ -6,14 +6,14 @@ import {
   getSingleBook,
   updateBook,
 } from "../controllers/book.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import { adminGuardMiddleware } from "../middlewares/adminGuard.middleware";
 
 const router = Router();
 
 router.get("/", getAllBook);
 router.get("/:bookId", getSingleBook);
-router.post("/", authMiddleware("admin"), createBook);
-router.delete("/:bookId", authMiddleware("admin"), deleteBook);
-router.patch("/:bookId", authMiddleware("admin"), updateBook);
+router.post("/", adminGuardMiddleware, createBook);
+router.delete("/:bookId", adminGuardMiddleware, deleteBook);
+router.patch("/:bookId", adminGuardMiddleware, updateBook);
 
 export default router;

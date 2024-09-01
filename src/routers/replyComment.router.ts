@@ -5,13 +5,13 @@ import {
   getReplyComments,
   updateReplyComment,
 } from "../controllers/replyComment.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import { userGuardMiddleware } from "../middlewares/userGuard.middleware";
 
 const router = Router();
 
 router.get("/:parentId", getReplyComments);
-router.post("/", authMiddleware, createReplyComment);
-router.delete("/:replyCommentId", authMiddleware, deleteReplyComment);
-router.patch("/:replyCommentId", authMiddleware, updateReplyComment);
+router.post("/", userGuardMiddleware, createReplyComment);
+router.delete("/:replyCommentId", userGuardMiddleware, deleteReplyComment);
+router.patch("/:replyCommentId", userGuardMiddleware, updateReplyComment);
 
 export default router;

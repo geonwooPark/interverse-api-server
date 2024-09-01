@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { getLikeUsers, toggleLike } from "../controllers/like.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import { userGuardMiddleware } from "../middlewares/userGuard.middleware";
 
 const router = Router();
 
 router.get("/:parentId", getLikeUsers);
-router.patch("/:parentId", authMiddleware, toggleLike);
+router.patch("/:parentId", userGuardMiddleware, toggleLike);
 
 export default router;
