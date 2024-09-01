@@ -35,7 +35,7 @@ app.use("/user", userRouter);
 if (process.env.NODE_ENV == "production") {
   console.log("^^^^^^^^^^" + process.env.NODE_ENV);
 
-  console.log("^^^^^^^^^^" + process.env.DOMAIN);
+  console.log(("^^^^^^^^^^" + process.env.DOMAIN) as string);
 
   const options = {
     ca: fs.readFileSync(
@@ -56,7 +56,7 @@ if (process.env.NODE_ENV == "production") {
   app.listen(process.env.PORT || 3000, () => {
     console.log("^^^^^^^^^^" + process.env.NODE_ENV);
 
-    console.log("^^^^^^^^^^" + process.env.DOMAIN);
+    console.log(("^^^^^^^^^^" + process.env.DOMAIN) as string);
 
     console.log("서버 실행중...");
   });
