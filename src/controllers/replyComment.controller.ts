@@ -39,7 +39,7 @@ export const createReplyComment: RequestHandler = async (req, res) => {
               user: {
                 userImage: "",
                 userId: "",
-                userName: "",
+                userName: "geonwoo",
               },
               createdAt: new Date(),
               content,
