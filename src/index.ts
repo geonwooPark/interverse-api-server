@@ -33,7 +33,7 @@ app.use("/checklist", checklistRouter);
 app.use("/user", userRouter);
 
 if (process.env.NODE_ENV == "production") {
-  console.log("^^^^^^^^^^^^" + process.env.DOMAIN);
+  console.log("^^^^^^^^^^" + process.env.DOMAIN);
 
   const options = {
     ca: fs.readFileSync(
