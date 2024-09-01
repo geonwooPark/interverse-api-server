@@ -33,6 +33,8 @@ app.use("/checklist", checklistRouter);
 app.use("/user", userRouter);
 
 if (process.env.NODE_ENV == "production") {
+  console.log("^^^^^^^^^^" + process.env.NODE_ENV);
+
   console.log("^^^^^^^^^^" + process.env.DOMAIN);
 
   const options = {
@@ -52,6 +54,8 @@ if (process.env.NODE_ENV == "production") {
   });
 } else {
   app.listen(process.env.PORT || 3000, () => {
+    console.log("^^^^^^^^^^" + process.env.NODE_ENV);
+
     console.log("^^^^^^^^^^" + process.env.DOMAIN);
 
     console.log("서버 실행중...");
