@@ -50,6 +50,6 @@ if (process.env.NODE_ENV == "production") {
   });
 } else {
   app.listen(process.env.PORT || 3000, () => {
-    console.log("서버 실행중...");
+    console.log(`${process.env.PORT}PORT 실행중..`);
   });
 }
