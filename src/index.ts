@@ -48,7 +48,7 @@ if (process.env.NODE_ENV == "production") {
     console.log(`${process.env.PORT || 443}PORT 실행중..`);
   });
 } else {
-  app.listen(process.env.PORT || 3000, () => {
-    console.log(`${process.env.PORT}PORT 실행중..`);
+  app.listen(process.env.PORT || 8000, () => {
+    console.log(`${process.env.PORT || 8000}PORT 실행중..`);
   });
 }
