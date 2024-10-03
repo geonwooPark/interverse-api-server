@@ -11,53 +11,42 @@ import { connectDB } from "../db";
 import { CustomRequest } from "../middlewares/userGuard.middleware";
 import { JwtPayload } from "jsonwebtoken";
 import { userDto } from "../dto/user.dto";
+import { CreateUserSchema, LoginSchema } from "../utils/vaildateSchemas";
+import * as yup from "yup";
 
 export const createUser: RequestHandler = async (req, res) => {
-  const { email, password, name } = req.body;
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,15}$/;
-  const hashedPassword = await bcryptjs.hash(password, 12);
-
-  if (name.trim() === "" || email.trim() === "" || password.trim() === "") {
-    return res.status(409).json({ message: "빈칸을 모두 입력해주세요." });
-  }
-  if (!emailRegex.test(email)) {
-    return res.status(409).json({ message: "잘못된 이메일 형식입니다." });
-  }
-  if (name.length > 10) {
-    return res
-      .status(409)
-      .json({ message: "이름은 10자 이하로 입력해주세요." });
-  }
-  if (parseInt(password.length, 10) < 8 || !passwordRegex.test(password)) {
-    return res
-      .status(409)
-      .json({ message: "비밀번호는 영문을 포함하여 8~15자리이어야 합니다." });
-  }
-
   try {
+    const validatedData = await CreateUserSchema.validate(req.body);
+
+    const { email, password, nickname } = validatedData;
+
+    const hashedPassword = await bcryptjs.hash(password, 12);
+
     await connectDB();
     const existedUser = await User.findOne<UserDocument>({ email });
     if (existedUser) {
       return res.status(409).json({ message: "이미 존재하는 이메일입니다." });
     }
 
-    await User.create({ name, email, password: hashedPassword, image: "" });
+    await User.create({ nickname, email, password: hashedPassword, image: "" });
 
     return res.status(201).json({ message: "회원가입 성공!" });
   } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      const validationErrors = error.errors.join(", ");
+      return res.status(400).json({ message: validationErrors });
+    }
+
     return res.status(500).json({ error: "서버 내부 오류" });
   }
 };
 
 export const loginUser: RequestHandler = async (req, res) => {
-  const { email, password } = req.body;
-
-  if (email.trim() === "" || password.trim() === "") {
-    return res.status(409).json({ message: "빈칸을 모두 입력해주세요." });
-  }
-
   try {
+    const validatedData = await LoginSchema.validate(req.body);
+
+    const { email, password } = validatedData;
+
     await connectDB();
     const user = await User.findOne<UserDocument>({ email });
     if (!user) {
@@ -76,6 +65,11 @@ export const loginUser: RequestHandler = async (req, res) => {
 
     return res.status(200).send({ token: getToken(payload) });
   } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      const validationErrors = error.errors.join(", ");
+      return res.status(400).json({ message: validationErrors });
+    }
+
     return res.status(500).json({ error: "서버 내부 오류" });
   }
 };

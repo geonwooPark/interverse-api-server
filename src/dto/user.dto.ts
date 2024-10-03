@@ -2,7 +2,7 @@ import { UserDocument } from "src/models/user.model";
 
 export type UserDto = {
   id: string;
-  name: string;
+  nickname: string;
   email: string;
   image: string;
   role: "admin" | "user";
@@ -11,7 +11,7 @@ export type UserDto = {
 export const userDto = (user: UserDocument): UserDto => {
   return {
     id: user._id,
-    name: user.name,
+    nickname: user.nickname,
     email: user.email,
     image: user.image,
     role: user.role,
