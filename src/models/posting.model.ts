@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 
 export interface PostingDocument extends Document {
+  _id: string;
   category: string;
   title: string;
   description?: string;
