@@ -8,6 +8,9 @@ import ReplyComment, {
 import bcryptjs from "bcryptjs";
 import { getToken } from "../utils/jwt";
 import { connectDB } from "../db";
+import { CustomRequest } from "../middlewares/userGuard.middleware";
+import { JwtPayload } from "jsonwebtoken";
+import { userDto } from "../dto/user.dto";
 
 export const createUser: RequestHandler = async (req, res) => {
   const { email, password, name } = req.body;
@@ -47,7 +50,7 @@ export const createUser: RequestHandler = async (req, res) => {
   }
 };
 
-export const getAuth: RequestHandler = async (req, res) => {
+export const loginUser: RequestHandler = async (req, res) => {
   const { email, password } = req.body;
 
   if (email.trim() === "" || password.trim() === "") {
@@ -66,15 +69,33 @@ export const getAuth: RequestHandler = async (req, res) => {
       return res.status(409).json({ message: "잘못된 비밀번호입니다." });
     }
 
-    // dto 필요해보임
     const payload = {
       email: user.email,
-      name: user.name,
-      image: user.image,
       role: user.role,
     };
 
     return res.status(200).send({ token: getToken(payload) });
+  } catch (error) {
+    return res.status(500).json({ error: "서버 내부 오류" });
+  }
+};
+
+export const getCurrentUser: RequestHandler = async (
+  req: CustomRequest,
+  res
+) => {
+  const { email } = req.auth as JwtPayload;
+
+  try {
+    await connectDB();
+    const userDoc = await User.findOne<UserDocument>({ email });
+    if (!userDoc) {
+      return res.status(409).json({ message: "존재하지 않는 회원입니다." });
+    }
+
+    const user = userDto(userDoc);
+
+    return res.status(200).send(user);
   } catch (error) {
     return res.status(500).json({ error: "서버 내부 오류" });
   }

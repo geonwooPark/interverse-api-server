@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
 export interface CustomRequest extends Request {
-  auth?: string | JwtPayload;
+  auth?: JwtPayload;
 }
 
 export const userGuardMiddleware = async (
@@ -11,14 +11,10 @@ export const userGuardMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    const token = req.headers.authorization as string;
-    const secretKey = process.env.SECRET_KEY as string;
+    const token = req.headers.authorization?.split(" ")[1] as string;
+    const secretKey = process.env.JWT_SECRET_KEY as string;
 
     req.auth = jwt.verify(token, secretKey) as JwtPayload;
-
-    if (req.auth.role !== "admin") {
-      return res.status(403).json({ message: "접근 권한이 없습니다." });
-    }
 
     return next();
   } catch (error) {
