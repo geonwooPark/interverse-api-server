@@ -13,9 +13,7 @@ import myPageRouter from "./routers/myPage.router";
 
 const app = express();
 
-app.use(
-  cors({ origin: ["http://localhost:3000", "https://www.ventileco.site"] })
-);
+app.use(cors({ origin: ["http://localhost:3000"] }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
