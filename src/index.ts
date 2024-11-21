@@ -9,6 +9,7 @@ import commentRouter from "./routers/comment.router";
 import replyCommentRouter from "./routers/replyComment.router";
 import likeRouter from "./routers/like.router";
 import userRouter from "./routers/user.router";
+import myPageRouter from "./routers/myPage.router";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/comment", commentRouter);
 app.use("/reply-comment", replyCommentRouter);
 app.use("/like", likeRouter);
 app.use("/user", userRouter);
+app.use("/my-page", myPageRouter);
 
 if (process.env.NODE_ENV == "production") {
   const options = {
