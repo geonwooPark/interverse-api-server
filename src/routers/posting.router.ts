@@ -7,15 +7,15 @@ import {
   updatePosting,
   getNewPostings,
 } from "../controllers/posting.controller";
-import { adminGuardMiddleware } from "../middlewares/adminGuard.middleware";
+import { userGuardMiddleware } from "src/middlewares/userGuard.middleware";
 
 const router = Router();
 
 router.get("/", getAllPosting);
 router.get("/:postingId", getSinglePosting);
-router.post("/", adminGuardMiddleware, createPosting);
-router.delete("/:postingId", adminGuardMiddleware, deletePosting);
-router.patch("/:postingId", adminGuardMiddleware, updatePosting);
+router.post("/", userGuardMiddleware, createPosting);
+router.delete("/:postingId", userGuardMiddleware, deletePosting);
+router.patch("/:postingId", userGuardMiddleware, updatePosting);
 
 router.get("/new-arrivals", getNewPostings);
 

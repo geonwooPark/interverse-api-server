@@ -7,6 +7,10 @@ export interface UserDocument extends Document {
   password: string;
   image: string;
   role: "user" | "admin";
+  relations: {
+    follower: string[];
+    following: string[];
+  };
 }
 
 const userModel = new Schema(
@@ -30,6 +34,16 @@ const userModel = new Schema(
     role: {
       type: String,
       default: "user",
+    },
+    relations: {
+      follower: {
+        type: [String],
+        default: [],
+      },
+      following: {
+        type: [String],
+        default: [],
+      },
     },
   },
   { timestamps: true, versionKey: false }

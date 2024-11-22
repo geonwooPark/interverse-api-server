@@ -56,7 +56,9 @@ export const loginUser: RequestHandler = async (req, res) => {
     }
 
     const payload = {
+      id: user._id,
       email: user.email,
+      image: user.image,
       role: user.role,
     };
 
@@ -244,5 +246,71 @@ export const sendVerificationEmail: RequestHandler = async (req, res) => {
     if (error instanceof Error) {
       return res.status(500).json({ error: "서버 내부 오류" });
     }
+  }
+};
+
+export const followUser: RequestHandler = async (req: CustomRequest, res) => {
+  const { id: targetId } = req.params;
+  const { id: currentId } = req.auth as JwtPayload;
+
+  try {
+    await connectDB();
+
+    if (targetId === currentId) {
+      return res
+        .status(400)
+        .json({ message: "자기 자신을 팔로우할 수 없습니다." });
+    }
+
+    const targetUser = await User.findById(targetId);
+    const currentUser = await User.findById(currentId);
+
+    if (!targetUser || !currentUser) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    if (currentUser.relations.following.includes(targetId)) {
+      return res.status(400).json({ message: "이미 팔로우 중입니다." });
+    }
+
+    targetUser.relations.follower.push(currentId);
+    currentUser.relations.following.push(targetId);
+
+    await currentUser.save();
+    await targetUser.save();
+
+    res.status(200).json({ message: "팔로우 성공" });
+  } catch (error) {
+    return res.status(500).json({ error: "서버 내부 오류" });
+  }
+};
+
+export const unfollowUser: RequestHandler = async (req: CustomRequest, res) => {
+  const { id: targetId } = req.params;
+  const { id: currentId } = req.auth as JwtPayload;
+
+  try {
+    await connectDB();
+
+    const targetUser = await User.findById(targetId);
+    const currentUser = await User.findById(currentId);
+
+    if (!targetUser || !currentUser) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    if (!currentUser.relations.following.includes(targetId)) {
+      return res.status(400).json({ message: "팔로우 중인 유저가 아닙니다." });
+    }
+
+    targetUser.relations.follower.filter((r) => r !== currentId);
+    currentUser.relations.following.filter((r) => r !== targetId);
+
+    await currentUser.save();
+    await targetUser.save();
+
+    res.status(200).json({ message: "언팔로우 성공" });
+  } catch (error) {
+    return res.status(500).json({ error: "서버 내부 오류" });
   }
 };
