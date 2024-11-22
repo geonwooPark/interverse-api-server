@@ -5,6 +5,8 @@ import { ReplyCommentDocument } from "../models/replyComment.model";
 import { v4 as uuid } from "uuid";
 import { PostingDocument } from "src/models/posting.model";
 import { connectDB } from "../db";
+import { CustomRequest } from "src/middlewares/userGuard.middleware";
+import { JwtPayload } from "jsonwebtoken";
 
 export const getReplyComments: RequestHandler = async (req, res) => {
   const { parentId } = req.params;
@@ -23,8 +25,12 @@ export const getReplyComments: RequestHandler = async (req, res) => {
   }
 };
 
-export const createReplyComment: RequestHandler = async (req, res) => {
+export const createReplyComment: RequestHandler = async (
+  req: CustomRequest,
+  res
+) => {
   const { parentId, commentId, content } = req.body;
+  const { image: userImage, email: userEmail } = req.auth as JwtPayload;
 
   try {
     await connectDB();
@@ -37,13 +43,11 @@ export const createReplyComment: RequestHandler = async (req, res) => {
               commentId,
               replyCommentId: uuid(),
               user: {
-                userImage: "",
-                userId: "",
-                userName: "geonwoo",
+                userImage,
+                userEmail,
               },
               createdAt: new Date(),
               content,
-              likeCount: 0,
             },
           },
         },

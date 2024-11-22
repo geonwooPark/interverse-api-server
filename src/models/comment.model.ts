@@ -13,7 +13,6 @@ interface Comment {
     path: string;
   };
   content: string;
-  likeCount: number;
   isDeleted: boolean;
   createdAt: Date;
 }

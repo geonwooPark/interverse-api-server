@@ -9,7 +9,6 @@ interface ReplyComment {
     userName: string;
   };
   content: string;
-  likeCount: number;
   createdAt: Date;
 }
 

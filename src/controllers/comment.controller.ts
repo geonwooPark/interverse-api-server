@@ -6,6 +6,8 @@ import { CommentDocument } from "../models/comment.model";
 import { v4 as uuid } from "uuid";
 import { PostingDocument } from "src/models/posting.model";
 import { connectDB } from "../db";
+import { CustomRequest } from "src/middlewares/userGuard.middleware";
+import { JwtPayload } from "jsonwebtoken";
 
 export const getComments: RequestHandler = async (req, res) => {
   const { parentId } = req.params;
@@ -22,8 +24,12 @@ export const getComments: RequestHandler = async (req, res) => {
   }
 };
 
-export const createComment: RequestHandler = async (req, res) => {
+export const createComment: RequestHandler = async (
+  req: CustomRequest,
+  res
+) => {
   const { parentId, content } = req.body;
+  const { image: userImage, email: userEmail } = req.auth as JwtPayload;
 
   try {
     await connectDB();
@@ -35,9 +41,8 @@ export const createComment: RequestHandler = async (req, res) => {
             comments: {
               commentId: uuid(),
               user: {
-                userImage: "",
-                userId: "",
-                userName: "",
+                userImage,
+                userEmail,
               },
               createdAt: new Date(),
               content,
