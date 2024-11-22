@@ -11,8 +11,9 @@ export const getAllPosting: RequestHandler = async (req, res) => {
   try {
     await connectDB();
     const postings = await Posting.find<PostingDocument>({});
+    const totalCount = await Posting.countDocuments({});
 
-    return res.status(200).json({ postings });
+    return res.status(200).json({ postings, totalCount });
   } catch (error) {
     return res.status(500).json({ error: "서버 내부 오류" });
   }

@@ -7,7 +7,7 @@ import {
   updatePosting,
   getNewPostings,
 } from "../controllers/posting.controller";
-import { userGuardMiddleware } from "src/middlewares/userGuard.middleware";
+import { userGuardMiddleware } from "../middlewares/userGuard.middleware";
 
 const router = Router();
 
