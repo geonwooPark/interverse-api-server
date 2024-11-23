@@ -27,11 +27,11 @@ const commentModel = new Schema(
   {
     parentId: {
       type: String,
-      unique: true,
       required: true,
     },
     comments: {
       type: Array,
+      default: [],
     },
     path: {
       type: String,

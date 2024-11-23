@@ -68,10 +68,10 @@ export const createPosting: RequestHandler = async (
     return res.status(406).json({ error: "설명은 90자 이하로 입력해주세요." });
   }
 
+  await connectDB();
   const session = await mongoose.startSession();
 
   try {
-    await connectDB();
     session.startTransaction();
 
     const [newPosting] = await Posting.create([{ ...req.body, userId: id }], {
@@ -79,27 +79,14 @@ export const createPosting: RequestHandler = async (
     });
 
     await Promise.all([
-      Comment.create(
-        {
-          parentId: newPosting._id,
-          title: newPosting.title,
-        },
-        { session }
-      ),
-      ReplyComment.create(
-        {
-          parentId: newPosting._id,
-          title: newPosting.title,
-        },
-        { session }
-      ),
-      Like.create(
-        {
-          parentId: newPosting._id,
-          title: newPosting.title,
-        },
-        { session }
-      ),
+      Comment.create([{ parentId: newPosting._id }], {
+        session,
+      }),
+      ReplyComment.create([{ parentId: newPosting._id }], { session }),
+      Like.create([{ parentId: newPosting._id }], {
+        session,
+      }),
+      ,
     ]);
 
     await session.commitTransaction();

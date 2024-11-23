@@ -22,7 +22,6 @@ const replyCommentModel = new Schema(
   {
     parentId: {
       type: String,
-      unique: true,
       required: true,
     },
     comments: {
