@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 
 export interface PostingDocument extends Document {
   _id: string;
+  userId: string;
   category: string;
   title: string;
   description?: string;
@@ -14,6 +15,10 @@ export interface PostingDocument extends Document {
 
 const postingModel = new Schema(
   {
+    userId: {
+      type: String,
+      required: true,
+    },
     category: {
       type: String,
       required: true,

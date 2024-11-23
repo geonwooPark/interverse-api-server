@@ -8,6 +8,7 @@ import { PostingDocument } from "src/models/posting.model";
 import { connectDB } from "../db";
 import { CustomRequest } from "src/middlewares/userGuard.middleware";
 import { JwtPayload } from "jsonwebtoken";
+import mongoose from "mongoose";
 
 export const getComments: RequestHandler = async (req, res) => {
   const { parentId } = req.params;
@@ -31,8 +32,12 @@ export const createComment: RequestHandler = async (
   const { parentId, content } = req.body;
   const { image: userImage, email: userEmail } = req.auth as JwtPayload;
 
+  const session = await mongoose.startSession();
+
   try {
     await connectDB();
+    session.startTransaction();
+
     const [updatedComment] = await Promise.all([
       Comment.findOneAndUpdate<CommentDocument>(
         { parentId },
@@ -52,7 +57,7 @@ export const createComment: RequestHandler = async (
           },
         },
         // new: 업데이트된 문서를 반환, upsert: 문서가 없으면 새로 생성
-        { new: true, upsert: true }
+        { new: true, upsert: true, session }
       ),
       Posting.findByIdAndUpdate<PostingDocument>(
         {
@@ -60,13 +65,20 @@ export const createComment: RequestHandler = async (
         },
         {
           $inc: { commentCount: 1 },
-        }
+        },
+        { session }
       ),
     ]);
 
+    await session.commitTransaction();
+
     return res.status(201).json({ updatedComment });
   } catch (error) {
+    await session.abortTransaction();
+
     return res.status(500).json({ error: "Internal server error" });
+  } finally {
+    session.endSession();
   }
 };
 
@@ -74,8 +86,12 @@ export const deleteComment: RequestHandler = async (req, res) => {
   const { commentId } = req.params;
   const { parentId } = req.body;
 
+  const session = await mongoose.startSession();
+
   try {
     await connectDB();
+    session.startTransaction();
+
     // 댓글에 답글이 있다면 isDeleted만 변경하고 댓글이 없다면 삭제
     const replyComment = await ReplyComment.findOne<CommentDocument>(
       {
@@ -88,7 +104,7 @@ export const deleteComment: RequestHandler = async (req, res) => {
           },
         },
       }
-    );
+    ).session(session);
 
     await Promise.all([
       replyComment?.comments.length !== 0
@@ -97,13 +113,14 @@ export const deleteComment: RequestHandler = async (req, res) => {
               parentId,
             },
             { $set: { "comments.$[elem].isDeleted": true } },
-            { arrayFilters: [{ "elem.commentId": commentId }] }
+            { arrayFilters: [{ "elem.commentId": commentId }, session] }
           )
         : Comment.findOneAndUpdate<CommentDocument>(
             {
               parentId,
             },
-            { $pull: { comments: { commentId } } }
+            { $pull: { comments: { commentId } } },
+            { session }
           ),
       Posting.findByIdAndUpdate<PostingDocument>(
         {
@@ -111,13 +128,20 @@ export const deleteComment: RequestHandler = async (req, res) => {
         },
         {
           $inc: { commentCount: -1 },
-        }
+        },
+        { session }
       ),
     ]);
 
+    await session.commitTransaction();
+
     return res.status(200).json({ deletedId: parentId });
   } catch (error) {
+    await session.abortTransaction();
+
     return res.status(500).json({ error: "서버 내부 오류" });
+  } finally {
+    session.endSession();
   }
 };
 

@@ -10,19 +10,21 @@ import { userDto } from "../dto/user.dto";
 import { CreateUserSchema, LoginSchema } from "../utils/vaildateSchemas";
 import * as yup from "yup";
 import { smtpTransport } from "../utils/smtpTransport";
+import mongoose from "mongoose";
 
 export const createUser: RequestHandler = async (req, res) => {
   try {
+    await connectDB();
+
     const validatedData = await CreateUserSchema.validate(req.body);
 
     const { email, password, nickname } = validatedData;
 
     const hashedPassword = await bcryptjs.hash(password, 12);
 
-    await connectDB();
     const existedUser = await User.findOne<UserDocument>({ email });
     if (existedUser) {
-      return res.status(409).json({ message: "이미 존재하는 이메일입니다." });
+      throw new Error("이미 존재하는 이메일입니다.");
     }
 
     await User.create({ nickname, email, password: hashedPassword, image: "" });
@@ -34,7 +36,13 @@ export const createUser: RequestHandler = async (req, res) => {
       return res.status(400).json({ message: validationErrors });
     }
 
-    return res.status(500).json({ error: "서버 내부 오류" });
+    if (error instanceof Error) {
+      if (error.message === "이미 존재하는 이메일입니다.") {
+        return res.status(409).json({ message: error.message });
+      }
+
+      return res.status(500).json({ error: "서버 내부 오류" });
+    }
   }
 };
 
@@ -47,12 +55,12 @@ export const loginUser: RequestHandler = async (req, res) => {
     await connectDB();
     const user = await User.findOne<UserDocument>({ email });
     if (!user) {
-      return res.status(409).json({ message: "존재하지 않는 회원입니다." });
+      throw new Error("존재하지 않는 회원입니다.");
     }
 
     const pwcheck = await bcryptjs.compare(password, user.password);
     if (!pwcheck) {
-      return res.status(409).json({ message: "잘못된 비밀번호입니다." });
+      throw new Error("잘못된 비밀번호입니다.");
     }
 
     const payload = {
@@ -69,7 +77,17 @@ export const loginUser: RequestHandler = async (req, res) => {
       return res.status(400).json({ message: validationErrors });
     }
 
-    return res.status(500).json({ error: "서버 내부 오류" });
+    if (error instanceof Error) {
+      if (error.message === "존재하지 않는 회원입니다.") {
+        return res.status(409).json({ message: error.message });
+      }
+
+      if (error.message === "잘못된 비밀번호입니다.") {
+        return res.status(409).json({ message: error.message });
+      }
+
+      return res.status(500).json({ error: "서버 내부 오류" });
+    }
   }
 };
 
@@ -83,14 +101,20 @@ export const getCurrentUser: RequestHandler = async (
     await connectDB();
     const userDoc = await User.findOne<UserDocument>({ email });
     if (!userDoc) {
-      return res.status(409).json({ message: "존재하지 않는 회원입니다." });
+      throw new Error("존재하지 않는 회원입니다.");
     }
 
     const user = userDto(userDoc);
 
     return res.status(200).send(user);
   } catch (error) {
-    return res.status(500).json({ error: "서버 내부 오류" });
+    if (error instanceof Error) {
+      if (error.message === "존재하지 않는 회원입니다.") {
+        return res.status(409).json({ message: error.message });
+      }
+
+      return res.status(500).json({ error: "서버 내부 오류" });
+    }
   }
 };
 
@@ -121,8 +145,11 @@ export const sendVerificationEmail: RequestHandler = async (req, res) => {
       if (timeElapsed < 60) {
         return res.status(429).json({ message: "1분 이후 재전송 가능합니다." });
       } else {
-        // 이전 데이터를 삭제하고 새로운 인증 코드로 업데이트
-        await TempUser.deleteOne({ email });
+        await TempUser.findOneAndUpdate(
+          { email },
+          { verificationCode, createdAt: currentTime },
+          { upsert: true }
+        );
       }
     }
 
@@ -253,35 +280,62 @@ export const followUser: RequestHandler = async (req: CustomRequest, res) => {
   const { id: targetId } = req.params;
   const { id: currentId } = req.auth as JwtPayload;
 
+  if (targetId === currentId) {
+    return res
+      .status(400)
+      .json({ message: "자기 자신을 팔로우할 수 없습니다." });
+  }
+
+  const session = await mongoose.startSession();
+
   try {
     await connectDB();
+    session.startTransaction();
 
-    if (targetId === currentId) {
-      return res
-        .status(400)
-        .json({ message: "자기 자신을 팔로우할 수 없습니다." });
-    }
-
-    const targetUser = await User.findById(targetId);
-    const currentUser = await User.findById(currentId);
+    const [targetUser, currentUser] = await Promise.all([
+      User.findById(targetId).session(session),
+      User.findById(currentId).session(session),
+    ]);
 
     if (!targetUser || !currentUser) {
-      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+      throw new Error("사용자를 찾을 수 없습니다.");
     }
 
     if (currentUser.relations.following.includes(targetId)) {
-      return res.status(400).json({ message: "이미 팔로우 중입니다." });
+      throw new Error("이미 팔로우 중입니다.");
     }
 
     targetUser.relations.follower.push(currentId);
     currentUser.relations.following.push(targetId);
 
-    await currentUser.save();
-    await targetUser.save();
+    await Promise.all([
+      targetUser.save({ session }),
+      currentUser.save({ session }),
+    ]);
 
-    res.status(200).json({ message: "팔로우 성공" });
+    return res.status(200).json({
+      message: "팔로우 성공",
+      data: {
+        followerCount: targetUser.relations.follower.length,
+        followingCount: currentUser.relations.following.length,
+      },
+    });
   } catch (error) {
-    return res.status(500).json({ error: "서버 내부 오류" });
+    await session.abortTransaction();
+
+    if (error instanceof Error) {
+      if (error.message === "사용자를 찾을 수 없습니다.") {
+        return res.status(404).json({ message: error.message });
+      }
+
+      if (error.message === "이미 팔로우 중입니다.") {
+        return res.status(400).json({ message: error.message });
+      }
+
+      return res.status(500).json({ error: "서버 내부 오류" });
+    }
+  } finally {
+    session.endSession();
   }
 };
 
@@ -289,28 +343,55 @@ export const unfollowUser: RequestHandler = async (req: CustomRequest, res) => {
   const { id: targetId } = req.params;
   const { id: currentId } = req.auth as JwtPayload;
 
+  const session = await mongoose.startSession();
+
   try {
     await connectDB();
+    session.startTransaction();
 
-    const targetUser = await User.findById(targetId);
-    const currentUser = await User.findById(currentId);
+    const [targetUser, currentUser] = await Promise.all([
+      User.findById(targetId).session(session),
+      User.findById(currentId).session(session),
+    ]);
 
     if (!targetUser || !currentUser) {
-      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+      throw new Error("사용자를 찾을 수 없습니다.");
     }
 
     if (!currentUser.relations.following.includes(targetId)) {
-      return res.status(400).json({ message: "팔로우 중인 유저가 아닙니다." });
+      throw new Error("팔로우 되어 있지 않은 회원입니다.");
     }
 
     targetUser.relations.follower.filter((r) => r !== currentId);
     currentUser.relations.following.filter((r) => r !== targetId);
 
-    await currentUser.save();
-    await targetUser.save();
+    await Promise.all([
+      targetUser.save({ session }),
+      currentUser.save({ session }),
+    ]);
 
-    res.status(200).json({ message: "언팔로우 성공" });
+    return res.status(200).json({
+      message: "언팔로우 성공",
+      data: {
+        followerCount: targetUser.relations.follower.length,
+        followingCount: currentUser.relations.following.length,
+      },
+    });
   } catch (error) {
-    return res.status(500).json({ error: "서버 내부 오류" });
+    await session.abortTransaction();
+
+    if (error instanceof Error) {
+      if (error.message === "사용자를 찾을 수 없습니다.") {
+        return res.status(404).json({ message: error.message });
+      }
+
+      if (error.message === "팔로우 되어 있지 않은 회원입니다.") {
+        return res.status(400).json({ message: error.message });
+      }
+
+      return res.status(500).json({ error: "서버 내부 오류" });
+    }
+  } finally {
+    session.endSession();
   }
 };
