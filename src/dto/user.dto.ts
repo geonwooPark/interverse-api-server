@@ -13,7 +13,6 @@ export const userDto = (user: UserDocument): UserDto => {
     id: user._id,
     nickname: user.nickname,
     email: user.email,
-    image: user.image,
     role: user.role,
   };
 };
