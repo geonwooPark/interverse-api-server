@@ -6,10 +6,6 @@ export type UserDto = {
   email: string;
   image: string;
   role: "admin" | "user";
-  relations: {
-    follower: string[];
-    following: string[];
-  };
 };
 
 export const userDto = (user: UserDocument): UserDto => {
@@ -19,6 +15,5 @@ export const userDto = (user: UserDocument): UserDto => {
     email: user.email,
     image: user.image,
     role: user.role,
-    relations: user.relations,
   };
 };
