@@ -10,9 +10,9 @@ import { userDto } from "../dto/user.dto";
 import { CreateUserSchema, LoginSchema } from "../utils/vaildateSchemas";
 import * as yup from "yup";
 import { CustomError } from "../errors/CustomError";
-import { errorResponse, successResponse } from "src/utils/responseHelper";
-import { getEmailTemplete } from "src/utils/getEmailTemplete";
-import { sendEmail } from "src/utils/sendEmail";
+import { errorResponse, successResponse } from "../dto/response.dto";
+import { getEmailTemplete } from "..//utils/getEmailTemplete";
+import { sendEmail } from "../utils/sendEmail";
 
 export const createUser: RequestHandler = async (req, res) => {
   try {
