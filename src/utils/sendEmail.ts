@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-const smtpTransport = nodemailer.createTransport({
+export const smtpTransport = nodemailer.createTransport({
   pool: true,
   maxConnections: 5,
   service: "naver",
@@ -16,18 +16,3 @@ const smtpTransport = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
 });
-
-export const sendEmail = (options: {
-  from: string;
-  to: any;
-  subject: string;
-  html: string;
-}) => {
-  try {
-    smtpTransport.sendMail(options);
-  } catch (error) {
-    console.log(error);
-  } finally {
-    smtpTransport.close();
-  }
-};

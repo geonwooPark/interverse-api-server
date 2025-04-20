@@ -12,7 +12,7 @@ import * as yup from "yup";
 import { CustomError } from "../errors/CustomError";
 import { errorResponse, successResponse } from "../dto/response.dto";
 import { getEmailTemplete } from "..//utils/getEmailTemplete";
-import { sendEmail } from "../utils/sendEmail";
+import { smtpTransport } from "../utils/sendEmail";
 
 export const createUser: RequestHandler = async (req, res) => {
   try {
@@ -130,12 +130,6 @@ export const sendVerificationEmail: RequestHandler = async (req, res) => {
   try {
     await connectDB();
 
-    // 이미 가입된 유저인지 확인
-    const isExistingUser = await User.findOne({ email });
-    if (isExistingUser) {
-      throw new CustomError("가입이 불가능한 이메일입니다.", 409);
-    }
-
     // 최근에 전송된 임시 유저인지 확인
     const existingTempUser = await TempUser.findOne({ email });
     if (existingTempUser) {
@@ -163,13 +157,20 @@ export const sendVerificationEmail: RequestHandler = async (req, res) => {
       html: getEmailTemplete(verificationCode),
     };
 
-    sendEmail(mailOptions);
+    try {
+      await smtpTransport.sendMail(mailOptions);
+    } catch (err) {
+      console.error("이메일 전송 중 에러:", err);
+      throw new CustomError("이메일 전송에 실패했습니다.", 500);
+    }
 
     await TempUser.create({
       email,
       verificationCode,
       createdAt: currentTime,
     });
+
+    smtpTransport.close();
 
     return res
       .status(200)
@@ -180,5 +181,50 @@ export const sendVerificationEmail: RequestHandler = async (req, res) => {
     }
 
     return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
+export const checkVerificationCode: RequestHandler = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    await connectDB();
+
+    const tempUser = await TempUser.findOne({ email });
+
+    if (tempUser && tempUser.verificationCode === code) {
+      return res
+        .status(200)
+        .json(successResponse("인증에 성공했습니다.", true));
+    } else {
+      throw new CustomError("인증에 실패했습니다.", 401);
+    }
+  } catch (error) {
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
+
+    return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
+export const checkId: RequestHandler = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    await connectDB();
+
+    const isExistingUser = await User.findOne({ email });
+    if (isExistingUser) {
+      throw new CustomError("가입이 불가능한 이메일입니다.", 409);
+    } else {
+      return res
+        .status(200)
+        .json(successResponse("가입 가능한 이메일입니다.", true));
+    }
+  } catch (error) {
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
   }
 };

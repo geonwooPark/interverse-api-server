@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  checkId,
+  checkVerificationCode,
   createUser,
   getCurrentUser,
   loginUser,
@@ -13,5 +15,7 @@ router.post("/login", loginUser);
 router.post("/signup", createUser);
 router.get("/me", userGuardMiddleware, getCurrentUser);
 router.post("/send-verification-email", sendVerificationEmail);
+router.post("/check-verification-code", checkVerificationCode);
+router.post("check-id", checkId);
 
 export default router;
