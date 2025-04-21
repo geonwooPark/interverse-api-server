@@ -80,7 +80,12 @@ export const loginUser: RequestHandler = async (req, res) => {
       role: user.role,
     };
 
-    return res.status(200).send({ token: getToken(payload), user });
+    return res.status(200).json(
+      successResponse("로그인에 성공했습니다.", {
+        token: getToken(payload),
+        user,
+      })
+    );
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       const validationErrors = error.errors.join(", ");
@@ -222,6 +227,34 @@ export const checkId: RequestHandler = async (req, res) => {
         .status(200)
         .json(successResponse("가입 가능한 이메일입니다.", true));
     }
+  } catch (error) {
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
+
+    return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
+export const changePassword: RequestHandler = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  const hashedPassword = await bcryptjs.hash(newPassword, 12);
+
+  try {
+    await connectDB();
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new CustomError("해당 이메일의 유저를 찾을 수 없습니다.", 404);
+    }
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res
+      .status(200)
+      .json(successResponse("비밀번호가 성공적으로 변경되었습니다.", true));
   } catch (error) {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json(errorResponse(error.message));
