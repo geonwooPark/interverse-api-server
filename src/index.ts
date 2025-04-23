@@ -4,7 +4,8 @@ import express from "express";
 import fs from "fs";
 import https from "https";
 import cors from "cors";
-import userRouter from "./routers/user.router";
+import authRouter from "./routers/auth.router";
+import roomsRouter from "./routers/rooms.router";
 
 const app = express();
 
@@ -13,7 +14,8 @@ app.use(cors({ origin: ["http://localhost:5173"] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/user", userRouter);
+app.use("/auth", authRouter);
+app.use("/rooms", roomsRouter);
 
 if (process.env.NODE_ENV == "production") {
   const options = {

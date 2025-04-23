@@ -83,7 +83,7 @@ export const loginUser: RequestHandler = async (req, res) => {
     return res.status(200).json(
       successResponse("로그인에 성공했습니다.", {
         token: getToken(payload),
-        user,
+        user: userDto(user),
       })
     );
   } catch (error) {
