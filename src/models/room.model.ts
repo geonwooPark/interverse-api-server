@@ -3,7 +3,6 @@ import { Schema, model } from "mongoose";
 export interface RoomDocument extends Document {
   _id: string;
   title: string;
-  password: string;
   host: string;
   headCount: number;
 }
@@ -11,10 +10,6 @@ export interface RoomDocument extends Document {
 const roomModel = new Schema(
   {
     title: {
-      type: String,
-      required: true,
-    },
-    password: {
       type: String,
       required: true,
     },

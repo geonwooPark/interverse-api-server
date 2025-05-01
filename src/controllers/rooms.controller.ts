@@ -5,6 +5,8 @@ import { JwtPayload } from "jsonwebtoken";
 import { connectDB } from "../db";
 import { CustomError } from "../errors/CustomError";
 import { errorResponse, successResponse } from "../dto/response.dto";
+import bcryptjs from "bcryptjs";
+import RoomCredential from "../models/roomCredential.model";
 
 export const getRooms: RequestHandler = async (req: JwtPayload, res) => {
   const { id: userId } = req.auth;
@@ -27,8 +29,6 @@ export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
 
   const { id: userId } = req.auth;
 
-  const { password } = req.body;
-
   try {
     await connectDB();
 
@@ -36,10 +36,6 @@ export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
 
     if (!room) {
       throw new CustomError("방을 찾을 수 없습니다.", 404);
-    }
-
-    if (password !== room.password) {
-      throw new CustomError("비밀번호가 일치하지 않습니다.", 401);
     }
 
     const existingLog = await RoomLog.findOne({ userId, roomId });
@@ -65,12 +61,20 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
   try {
     await connectDB();
 
+    const hashedPassword = await bcryptjs.hash(password, 8);
+
     const newRoom = await Room.create({
       title,
-      password,
       headCount,
       host: userId,
     });
+
+    await RoomCredential.create({
+      roomId: newRoom._id,
+      password: hashedPassword,
+    });
+
+    await RoomLog.create({ userId, roomId: newRoom.id });
 
     return res
       .status(201)
@@ -100,12 +104,42 @@ export const deleteRoom: RequestHandler = async (req: JwtPayload, res) => {
 
     await Promise.all([
       Room.deleteOne({ _id: roomId }),
+      RoomCredential.deleteOne({ roomId }),
       RoomLog.deleteMany({ roomId }),
     ]);
 
     return res
       .status(200)
       .json(successResponse("방이 성공적으로 삭제되었습니다.", true));
+  } catch (error) {
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
+
+    return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
+export const checkPassword: RequestHandler = async (req, res) => {
+  const { roomId } = req.params;
+
+  const { password } = req.body;
+
+  try {
+    const roomCredential = await RoomCredential.findOne({ roomId });
+
+    if (!roomCredential) {
+      throw new CustomError("방을 찾을 수 없습니다.", 404);
+    }
+
+    const pwcheck = await bcryptjs.compare(password, roomCredential.password);
+    if (!pwcheck) {
+      throw new CustomError("비밀번호가 일치하지 않습니다.", 409);
+    }
+
+    return res
+      .status(200)
+      .json(successResponse("비밀번호가 일치합니다.", true));
   } catch (error) {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json(errorResponse(error.message));
