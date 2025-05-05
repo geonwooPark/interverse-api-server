@@ -4,7 +4,6 @@ export type UserDto = {
   id: string;
   nickname: string;
   email: string;
-  image: string;
   role: "admin" | "user";
 };
 

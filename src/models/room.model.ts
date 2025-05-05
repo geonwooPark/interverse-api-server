@@ -1,10 +1,11 @@
-import { Schema, model } from "mongoose";
+import { Document, Schema, model } from "mongoose";
 
 export interface RoomDocument extends Document {
   _id: string;
   title: string;
   host: string;
   headCount: number;
+  map: string;
 }
 
 const roomModel = new Schema(
@@ -19,6 +20,10 @@ const roomModel = new Schema(
     },
     headCount: {
       type: Number,
+      required: true,
+    },
+    map: {
+      type: String,
       required: true,
     },
   },

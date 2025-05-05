@@ -24,6 +24,31 @@ export const getRooms: RequestHandler = async (req: JwtPayload, res) => {
   }
 };
 
+export const getSingleRoom: RequestHandler = async (req: JwtPayload, res) => {
+  const { id: userId } = req.auth;
+
+  const { roomId } = req.params;
+
+  try {
+    await connectDB();
+
+    const room = await Room.findById(roomId);
+
+    if (room) {
+      const isHost = room.host === userId;
+
+      return res.status(200).json(
+        successResponse(`${roomId}방 정보입니다.`, {
+          ...room.toObject(),
+          isHost,
+        })
+      );
+    }
+  } catch (error) {
+    return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
 export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
   const { roomId } = req.params;
 
@@ -54,7 +79,7 @@ export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
 };
 
 export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
-  const { title, password, headCount } = req.body;
+  const { title, password, headCount, map } = req.body;
 
   const { id: userId } = req.auth;
 
@@ -66,6 +91,7 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
     const newRoom = await Room.create({
       title,
       headCount,
+      map,
       host: userId,
     });
 
