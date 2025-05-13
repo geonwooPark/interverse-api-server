@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import Map from "../models/map.model";
 import Room from "../models/room.model";
 import RoomLog from "../models/roomLog.model";
 import { JwtPayload } from "jsonwebtoken";
@@ -14,7 +15,9 @@ export const getRooms: RequestHandler = async (req: JwtPayload, res) => {
   try {
     await connectDB();
 
-    const logs = await RoomLog.find({ userId }).populate("roomId");
+    const logs = await RoomLog.find({ userId })
+      .populate("room")
+      .populate("map");
 
     return res
       .status(200)
@@ -79,7 +82,7 @@ export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
 };
 
 export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
-  const { title, password, headCount, map } = req.body;
+  const { title, password, headCount, mapId } = req.body;
 
   const { id: userId } = req.auth;
 
@@ -88,10 +91,15 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
 
     const hashedPassword = await bcryptjs.hash(password, 8);
 
+    const mapDoc = await Map.findOne({ _id: mapId });
+    if (mapId && !mapDoc) {
+      throw new CustomError("맵을 찾을 수 없습니다.", 400);
+    }
+
     const newRoom = await Room.create({
       title,
       headCount,
-      map,
+      mapId: mapDoc?._id,
       host: userId,
     });
 
@@ -100,12 +108,16 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
       password: hashedPassword,
     });
 
-    await RoomLog.create({ userId, roomId: newRoom.id });
+    await RoomLog.create({ userId, room: newRoom.id, map: mapDoc?._id });
 
     return res
       .status(201)
       .json(successResponse("방이 생성되었습니다.", newRoom));
   } catch (error) {
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
+
     return res.status(500).json(errorResponse("서버 내부 오류"));
   }
 };
