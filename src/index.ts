@@ -1,16 +1,22 @@
 require("dotenv").config();
+import "./module-alias";
 import "./db";
 import express from "express";
 import fs from "fs";
 import https from "https";
 import cors from "cors";
-import authRouter from "./routers/auth.router";
-import roomsRouter from "./routers/rooms.router";
-import mapsRouter from "./routers/maps.router";
+import authRouter from "@routers/auth.router";
+import roomsRouter from "@routers/rooms.router";
+import mapsRouter from "@routers/maps.router";
 
 const app = express();
 
-app.use(cors({ origin: ["http://localhost:5173"] }));
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://yourdomain.com"]
+    : ["http://localhost:5173"];
+
+app.use(cors({ origin: allowedOrigins }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

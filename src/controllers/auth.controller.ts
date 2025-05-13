@@ -1,18 +1,18 @@
 import { RequestHandler } from "express";
-import User, { UserDocument } from "../models/user.model";
-import TempUser from "../models/tempUser.model";
+import User, { UserDocument } from "@models/user.model";
+import TempUser from "@models/tempUser.model";
 import bcryptjs from "bcryptjs";
-import { getToken } from "../utils/jwt";
-import { connectDB } from "../db";
-import { CustomRequest } from "../middlewares/userGuard.middleware";
+import { getToken } from "@utils/jwt";
+import { connectDB } from "@db/index";
+import { CustomRequest } from "@middlewares/userGuard.middleware";
 import { JwtPayload } from "jsonwebtoken";
-import { userDto } from "../dto/user.dto";
-import { CreateUserSchema, LoginSchema } from "../utils/vaildateSchemas";
+import { userDto } from "@dto/user.dto";
+import { CreateUserSchema, LoginSchema } from "@utils/vaildateSchemas";
 import * as yup from "yup";
-import { CustomError } from "../errors/CustomError";
-import { errorResponse, successResponse } from "../dto/response.dto";
-import { getEmailTemplete } from "..//utils/getEmailTemplete";
-import { smtpTransport } from "../utils/sendEmail";
+import { CustomError } from "@errors/CustomError";
+import { errorResponse, successResponse } from "@dto/response.dto";
+import { getEmailTemplete } from "@utils/getEmailTemplete";
+import { smtpTransport } from "@utils/sendEmail";
 
 export const createUser: RequestHandler = async (req, res) => {
   try {

@@ -7,8 +7,8 @@ import {
   getCurrentUser,
   loginUser,
   sendVerificationEmail,
-} from "../controllers/auth.controller";
-import { userGuardMiddleware } from "../middlewares/userGuard.middleware";
+} from "@controllers/auth.controller";
+import { userGuardMiddleware } from "@middlewares/userGuard.middleware";
 
 const router = Router();
 

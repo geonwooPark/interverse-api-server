@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
-import Map from "../models/map.model";
-import { connectDB } from "../db";
-import { errorResponse, successResponse } from "../dto/response.dto";
+import Map from "@models/map.model";
+import { connectDB } from "@db/index";
+import { errorResponse, successResponse } from "@dto/response.dto";
 
 export const getMaps: RequestHandler = async (req, res) => {
   try {

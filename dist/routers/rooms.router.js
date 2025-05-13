@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const userGuard_middleware_1 = require("@middlewares/userGuard.middleware");
+const rooms_controller_1 = require("@controllers/rooms.controller");
+const router = (0, express_1.Router)();
+router.get("/", userGuard_middleware_1.userGuardMiddleware, rooms_controller_1.getRooms);
+router.get("/:roomId", userGuard_middleware_1.userGuardMiddleware, rooms_controller_1.getSingleRoom);
+router.post("/", userGuard_middleware_1.userGuardMiddleware, rooms_controller_1.createRoom);
+router.post("/:roomId/join", userGuard_middleware_1.userGuardMiddleware, rooms_controller_1.joinRoom);
+router.delete("/:roomId", userGuard_middleware_1.userGuardMiddleware, rooms_controller_1.deleteRoom);
+router.post("/:roomId/check-password", userGuard_middleware_1.userGuardMiddleware, rooms_controller_1.checkPassword);
+exports.default = router;

@@ -1,4 +1,4 @@
-import { UserDocument } from "src/models/user.model";
+import { UserDocument } from "@models/user.model";
 
 export type UserDto = {
   id: string;

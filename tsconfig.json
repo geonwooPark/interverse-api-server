@@ -10,6 +10,16 @@
     "forceConsistentCasingInFileNames": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@controllers/*": ["src/controllers/*"],
+      "@db/*": ["src/db/*"],
+      "@dto/*": ["src/dto/*"],
+      "@errors/*": ["src/errors/*"],
+      "@middlewares/*": ["src/middlewares/*"],
+      "@models/*": ["src/models/*"],
+      "@routers/*": ["src/routers/*"],
+      "@utils/*": ["src/utils/*"]
+    }
   }
 }

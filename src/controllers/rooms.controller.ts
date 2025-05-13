@@ -1,13 +1,13 @@
 import { RequestHandler } from "express";
-import Map from "../models/map.model";
-import Room from "../models/room.model";
-import RoomLog from "../models/roomLog.model";
+import Map from "@models/map.model";
+import Room from "@models/room.model";
+import RoomLog from "@models/roomLog.model";
 import { JwtPayload } from "jsonwebtoken";
-import { connectDB } from "../db";
-import { CustomError } from "../errors/CustomError";
-import { errorResponse, successResponse } from "../dto/response.dto";
+import { connectDB } from "@db/index";
+import { CustomError } from "@errors/CustomError";
+import { errorResponse, successResponse } from "@dto/response.dto";
 import bcryptjs from "bcryptjs";
-import RoomCredential from "../models/roomCredential.model";
+import RoomCredential from "@models/roomCredential.model";
 
 export const getRooms: RequestHandler = async (req: JwtPayload, res) => {
   const { id: userId } = req.auth;

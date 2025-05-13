@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userGuardMiddleware } from "../middlewares/userGuard.middleware";
+import { userGuardMiddleware } from "@middlewares/userGuard.middleware";
 import {
   checkPassword,
   createRoom,
@@ -7,7 +7,7 @@ import {
   getRooms,
   getSingleRoom,
   joinRoom,
-} from "../controllers/rooms.controller";
+} from "@controllers/rooms.controller";
 
 const router = Router();
 
