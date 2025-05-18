@@ -12,7 +12,7 @@ import * as yup from "yup";
 import { CustomError } from "@errors/CustomError";
 import { errorResponse, successResponse } from "@dto/response.dto";
 import { getEmailTemplete } from "@utils/getEmailTemplete";
-import { smtpTransport } from "@utils/sendEmail";
+import { createSmtpTransport } from "@utils/sendEmail";
 
 export const createUser: RequestHandler = async (req, res) => {
   try {
@@ -132,61 +132,62 @@ export const sendVerificationEmail: RequestHandler = async (req, res) => {
   const verificationCode = Math.floor(100000 + Math.random() * 900000);
   const currentTime = new Date();
 
+  let smtpTransport;
+
   try {
     await connectDB();
 
-    // 최근에 전송된 임시 유저인지 확인
     const existingTempUser = await TempUser.findOne({ email });
+
     if (existingTempUser) {
       const timeElapsed =
         (currentTime.getTime() -
           new Date(existingTempUser.createdAt).getTime()) /
         1000;
 
-      // 1분 이내에 재전송 요청이 있을 경우
-      if (timeElapsed < 60) {
-        throw new CustomError("1분 이후 재전송 가능합니다.", 429);
-      } else {
-        await TempUser.findOneAndUpdate(
-          { email },
-          { verificationCode, createdAt: currentTime },
-          { upsert: true }
-        );
+      if (timeElapsed < 30) {
+        return res
+          .status(429)
+          .json(errorResponse("이전 전송 30초 이후 재전송 가능합니다."));
       }
+
+      await TempUser.updateOne(
+        { email },
+        { verificationCode, createdAt: currentTime }
+      );
+    } else {
+      await TempUser.create({
+        email,
+        verificationCode,
+        createdAt: currentTime,
+      });
     }
 
-    const mailOptions = {
+    smtpTransport = createSmtpTransport();
+
+    console.log("📨 sendMail start");
+    await smtpTransport.sendMail({
       from: "white0581@naver.com",
       to: email,
       subject: "인증 메일입니다.",
       html: getEmailTemplete(verificationCode),
-    };
-
-    try {
-      await smtpTransport.sendMail(mailOptions);
-    } catch (err) {
-      console.error("이메일 전송 중 에러:", err);
-      throw new CustomError("이메일 전송에 실패했습니다.", 500);
-    }
-
-    await TempUser.create({
-      email,
-      verificationCode,
-      createdAt: currentTime,
     });
-
-    smtpTransport.close();
-
-    return res
-      .status(200)
-      .json(successResponse("이메일 전송에 성공했습니다.", true));
-  } catch (error) {
-    if (error instanceof CustomError) {
-      return res.status(error.statusCode).json(errorResponse(error.message));
+    console.log("✅ sendMail success");
+  } catch (err) {
+    if (err instanceof CustomError) {
+      return res.status(err.statusCode).json(errorResponse(err.message));
     }
 
     return res.status(500).json(errorResponse("서버 내부 오류"));
+  } finally {
+    if (smtpTransport) {
+      smtpTransport.close();
+    }
   }
+
+  return res
+    .status(200)
+    .json(successResponse("이메일 전송에 성공했습니다.", true));
 };
 
 export const checkVerificationCode: RequestHandler = async (req, res) => {
