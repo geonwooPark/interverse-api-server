@@ -8,6 +8,7 @@ import cors from "cors";
 import authRouter from "@routers/auth.router";
 import roomsRouter from "@routers/rooms.router";
 import mapsRouter from "@routers/maps.router";
+import { swaggerUi, swaggerSpec } from "./swagger";
 
 const app = express();
 
@@ -24,6 +25,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/auth", authRouter);
 app.use("/rooms", roomsRouter);
 app.use("/maps", mapsRouter);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 if (process.env.NODE_ENV == "production") {
   const options = {
@@ -44,5 +47,6 @@ if (process.env.NODE_ENV == "production") {
 } else {
   app.listen(process.env.PORT || 8000, () => {
     console.log(`${process.env.PORT || 8000}PORT 실행중..`);
+    console.log("📘 Swagger UI: http://localhost:8000/api-docs");
   });
 }
