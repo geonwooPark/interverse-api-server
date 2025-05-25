@@ -27,6 +27,9 @@ app.use("/rooms", roomsRouter);
 app.use("/maps", mapsRouter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/api-docs.json", (req, res) => {
+  res.json(swaggerSpec);
+});
 
 if (process.env.NODE_ENV == "production") {
   const options = {

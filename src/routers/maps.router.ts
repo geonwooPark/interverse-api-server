@@ -28,13 +28,24 @@ const router = Router();
  *                   type: array
  *                   items:
  *                     type: object
+ *                     required:
+ *                      - _id
+ *                      - name
+ *                      - thumbnail
+ *                      - source
  *                     properties:
  *                       _id:
  *                         type: string
- *                         example: 645f3d8f2345abcd12345678
+ *                         example: 645f3d8f2345abcd12345680
  *                       name:
  *                         type: string
- *                         example: Sample Map
+ *                         example: office
+ *                       thumbnail:
+ *                          type: string
+ *                          example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
+ *                       source:
+ *                          type: string
+ *                          example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
  *       500:
  *         description: 서버 내부 오류
  *         content:

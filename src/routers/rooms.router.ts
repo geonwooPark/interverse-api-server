@@ -50,10 +50,19 @@ const router = Router();
  *                           _id:
  *                             type: string
  *                             example: 645f3d8f2345abcd12345679
- *                           name:
+ *                           title:
  *                             type: string
  *                             example: Sample Room
- *                           # 필요시 추가 필드 기술
+ *                           host:
+ *                             type: string
+ *                             example: abcd12345679
+ *                           headCount:
+ *                             type: number
+ *                             example: 4
+ *                           mapId:
+ *                             type: string
+ *                             example: 68160673c9a7b70fb5cabb8b
+ *
  *                       map:
  *                         type: object
  *                         properties:
@@ -62,8 +71,13 @@ const router = Router();
  *                             example: 645f3d8f2345abcd12345680
  *                           name:
  *                             type: string
- *                             example: Sample Map
- *                           # 필요시 추가 필드 기술
+ *                             example: office
+ *                           thumbnail:
+ *                             type: string
+ *                             example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
+ *                           source:
+ *                             type: string
+ *                             example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
  *       401:
  *         description: 인증 실패
  *       500:
