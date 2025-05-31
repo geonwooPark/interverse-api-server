@@ -82,7 +82,7 @@ export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
 };
 
 export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
-  const { title, password, headCount, mapId } = req.body;
+  const { title, password, headCount, map } = req.body;
 
   const { id: userId } = req.auth;
 
@@ -91,15 +91,15 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
 
     const hashedPassword = await bcryptjs.hash(password, 8);
 
-    const mapDoc = await Map.findOne({ _id: mapId });
-    if (mapId && !mapDoc) {
+    const mapDoc = await Map.findOne({ name: map });
+    if (map && !mapDoc) {
       throw new CustomError("맵을 찾을 수 없습니다.", 400);
     }
 
     const newRoom = await Room.create({
       title,
       headCount,
-      mapId: mapDoc?._id,
+      map: mapDoc?.name,
       host: userId,
     });
 
@@ -108,7 +108,7 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
       password: hashedPassword,
     });
 
-    await RoomLog.create({ userId, room: newRoom.id, map: mapDoc?._id });
+    await RoomLog.create({ userId, room: newRoom.id, map: mapDoc?.name });
 
     return res
       .status(201)

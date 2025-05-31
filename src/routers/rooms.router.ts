@@ -59,10 +59,9 @@ const router = Router();
  *                           headCount:
  *                             type: number
  *                             example: 4
- *                           mapId:
+ *                           map:
  *                             type: string
- *                             example: 68160673c9a7b70fb5cabb8b
- *
+ *                             example: office
  *                       map:
  *                         type: object
  *                         properties:
@@ -131,6 +130,12 @@ router.get("/", userGuardMiddleware, getRooms);
  *                       type: string
  *                     isHost:
  *                       type: boolean
+ *                     title:
+ *                       type: string
+ *                     map:
+ *                       type: string
+ *                     headCount:
+ *                       type: number
  *       401:
  *         description: 인증 실패
  *       500:
@@ -165,7 +170,7 @@ router.get("/:roomId", userGuardMiddleware, getSingleRoom);
  *               - title
  *               - password
  *               - headCount
- *               - mapId
+ *               - map
  *             properties:
  *               title:
  *                 type: string
@@ -176,9 +181,9 @@ router.get("/:roomId", userGuardMiddleware, getSingleRoom);
  *               headCount:
  *                 type: number
  *                 example: 6
- *               mapId:
+ *               map:
  *                 type: string
- *                 example: "66501d3e9922f689c347bca7"
+ *                 example: "office"
  *     responses:
  *       201:
  *         description: 방 생성 성공
@@ -201,7 +206,7 @@ router.get("/:roomId", userGuardMiddleware, getSingleRoom);
  *                       type: number
  *                     host:
  *                       type: string
- *                     mapId:
+ *                     map:
  *                       type: string
  *       400:
  *         description: 잘못된 요청
@@ -258,7 +263,7 @@ router.post("/", userGuardMiddleware, createRoom);
  *                       type: number
  *                     host:
  *                       type: string
- *                     mapId:
+ *                     map:
  *                       type: string
  *       404:
  *         description: 방을 찾을 수 없음
