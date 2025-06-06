@@ -37,9 +37,11 @@ export const createUser: RequestHandler = async (req, res) => {
 
     const { password: _, ...safeUser } = newUser.toObject();
 
-    return res
-      .status(201)
-      .json(successResponse("회원가입 성공!", { user: safeUser }));
+    return res.status(201).json(
+      successResponse("가입이 완료됐어요! 지금부터 함께해요 🙌'", {
+        user: safeUser,
+      })
+    );
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       const validationErrors = error.errors.join(", ");
@@ -81,7 +83,7 @@ export const loginUser: RequestHandler = async (req, res) => {
     };
 
     return res.status(200).json(
-      successResponse("로그인에 성공했습니다.", {
+      successResponse("환영해요! 기다리고 있었어요 😊", {
         token: getToken(payload),
         user: userDto(user),
       })
@@ -255,7 +257,7 @@ export const changePassword: RequestHandler = async (req, res) => {
 
     return res
       .status(200)
-      .json(successResponse("비밀번호가 성공적으로 변경되었습니다.", true));
+      .json(successResponse("비밀번호가 성공적으로 변경되었어요!", true));
   } catch (error) {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json(errorResponse(error.message));

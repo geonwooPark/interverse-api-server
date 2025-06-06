@@ -32,7 +32,7 @@ const router = Router();
  *                      - _id
  *                      - name
  *                      - thumbnail
- *                      - source
+ *                      - mapSrc
  *                     properties:
  *                       _id:
  *                         type: string
@@ -43,7 +43,7 @@ const router = Router();
  *                       thumbnail:
  *                          type: string
  *                          example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
- *                       source:
+ *                       mapSrc:
  *                          type: string
  *                          example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
  *       500:
@@ -77,7 +77,7 @@ router.get("/", userGuardMiddleware, getMaps);
  *             required:
  *               - name
  *               - thumbnail
- *               - source
+ *               - mapSrc
  *             properties:
  *               name:
  *                 type: string
@@ -85,7 +85,7 @@ router.get("/", userGuardMiddleware, getMaps);
  *               thumbnail:
  *                 type: string
  *                 example: https://example.com/image.jpg
- *               source:
+ *               mapSrc:
  *                 type: string
  *                 example: https://example.com/map-source
  *     responses:
@@ -111,7 +111,7 @@ router.get("/", userGuardMiddleware, getMaps);
  *                     thumbnail:
  *                       type: string
  *                       example: https://example.com/image.jpg
- *                     source:
+ *                     mapSrc:
  *                       type: string
  *                       example: https://example.com/map-source
  *       500:

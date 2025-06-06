@@ -4,7 +4,7 @@ export interface MapDocument extends Document {
   _id: string;
   name: string;
   thumbnail: string;
-  source: string;
+  mapSrc: string;
 }
 
 const mapModel = new Schema(
@@ -17,7 +17,7 @@ const mapModel = new Schema(
       type: String,
       required: true,
     },
-    source: {
+    mapSrc: {
       type: String,
       required: true,
     },

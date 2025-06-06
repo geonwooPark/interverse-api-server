@@ -5,7 +5,7 @@ export interface RoomDocument extends Document {
   title: string;
   host: string;
   headCount: number;
-  map: string;
+  mapSrc: string;
 }
 
 const roomModel = new Schema(
@@ -22,7 +22,7 @@ const roomModel = new Schema(
       type: Number,
       required: true,
     },
-    map: {
+    mapSrc: {
       type: String,
       required: true,
     },

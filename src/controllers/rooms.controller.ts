@@ -82,7 +82,7 @@ export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
 };
 
 export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
-  const { title, password, headCount, map } = req.body;
+  const { title, password, headCount, mapSrc } = req.body;
 
   const { id: userId } = req.auth;
 
@@ -91,15 +91,14 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
 
     const hashedPassword = await bcryptjs.hash(password, 8);
 
-    const mapDoc = await Map.findOne({ name: map });
-    if (map && !mapDoc) {
+    const mapDoc = await Map.findOne({ mapSrc });
+    if (mapSrc && !mapDoc) {
       throw new CustomError("맵을 찾을 수 없습니다.", 400);
     }
-
     const newRoom = await Room.create({
       title,
       headCount,
-      map: mapDoc?.name,
+      mapSrc: mapDoc?.mapSrc,
       host: userId,
     });
 
@@ -108,11 +107,16 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
       password: hashedPassword,
     });
 
-    await RoomLog.create({ userId, room: newRoom.id, map: mapDoc?.name });
+    await RoomLog.create({ userId, room: newRoom.id, map: mapDoc?._id });
 
     return res
       .status(201)
-      .json(successResponse("방이 생성되었습니다.", newRoom));
+      .json(
+        successResponse(
+          "함께할 준비 되셨나요? 새로운 방이 시작됐어요!",
+          newRoom
+        )
+      );
   } catch (error) {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json(errorResponse(error.message));
@@ -143,7 +147,7 @@ export const deleteRoom: RequestHandler = async (req: JwtPayload, res) => {
     await Promise.all([
       Room.deleteOne({ _id: roomId }),
       RoomCredential.deleteOne({ roomId }),
-      RoomLog.deleteMany({ roomId }),
+      RoomLog.deleteMany({ room: roomId }),
     ]);
 
     return res

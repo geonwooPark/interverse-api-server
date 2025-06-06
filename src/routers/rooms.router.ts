@@ -59,9 +59,9 @@ const router = Router();
  *                           headCount:
  *                             type: number
  *                             example: 4
- *                           map:
+ *                           mapSrc:
  *                             type: string
- *                             example: office
+ *                             example: https://example.com/map-source
  *                       map:
  *                         type: object
  *                         properties:
@@ -132,7 +132,7 @@ router.get("/", userGuardMiddleware, getRooms);
  *                       type: boolean
  *                     title:
  *                       type: string
- *                     map:
+ *                     mapSrc:
  *                       type: string
  *                     headCount:
  *                       type: number
@@ -170,7 +170,7 @@ router.get("/:roomId", userGuardMiddleware, getSingleRoom);
  *               - title
  *               - password
  *               - headCount
- *               - map
+ *               - mapSrc
  *             properties:
  *               title:
  *                 type: string
@@ -181,7 +181,7 @@ router.get("/:roomId", userGuardMiddleware, getSingleRoom);
  *               headCount:
  *                 type: number
  *                 example: 6
- *               map:
+ *               mapSrc:
  *                 type: string
  *                 example: "office"
  *     responses:
@@ -206,7 +206,7 @@ router.get("/:roomId", userGuardMiddleware, getSingleRoom);
  *                       type: number
  *                     host:
  *                       type: string
- *                     map:
+ *                     mapSrc:
  *                       type: string
  *       400:
  *         description: 잘못된 요청
@@ -263,7 +263,7 @@ router.post("/", userGuardMiddleware, createRoom);
  *                       type: number
  *                     host:
  *                       type: string
- *                     map:
+ *                     mapSrc:
  *                       type: string
  *       404:
  *         description: 방을 찾을 수 없음
