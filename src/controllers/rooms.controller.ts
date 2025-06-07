@@ -66,9 +66,15 @@ export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
       throw new CustomError("방을 찾을 수 없습니다.", 404);
     }
 
-    const existingLog = await RoomLog.findOne({ userId, roomId });
-    if (!existingLog) {
-      await RoomLog.create({ userId, roomId });
+    const existingLog = await RoomLog.findOne({ userId, room: roomId });
+
+    if (existingLog) {
+      await RoomLog.updateOne(
+        { userId, room: roomId },
+        {
+          $set: { joinedAt: new Date() },
+        }
+      );
     }
 
     return res.status(200).json(successResponse("방에 입장했습니다.", room));
