@@ -6,6 +6,7 @@ import cors from "cors";
 import authRouter from "@routers/auth.router";
 import roomsRouter from "@routers/rooms.router";
 import assetsRouter from "@routers/assets.router";
+import healthRouter from "@routers/health.router";
 import { swaggerUi, swaggerSpec } from "./swagger";
 
 const app = express();
@@ -24,6 +25,7 @@ app.use("/auth", authRouter);
 app.use("/rooms", roomsRouter);
 app.use("/assets", assetsRouter);
 
+app.use("/health", healthRouter);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get("/api-docs.json", (req, res) => {
   res.json(swaggerSpec);
