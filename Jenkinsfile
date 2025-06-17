@@ -6,10 +6,15 @@ pipeline {
         checkout scm 
       }
     }
-    stage('Build Image') {
+    stage('Docker Login & Build Image') {
       steps {
-        sh 'docker build -t ventileco/interverse-api-server:latest ./'
-        sh 'docker push ventileco/interverse-api-server:latest'
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh '''
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker build -t ventileco/interverse-api-server:latest ./
+            docker push ventileco/interverse-api-server:latest
+          '''
+        }
       }
     }
     stage('Trigger Infra Deploy') {
