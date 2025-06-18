@@ -20,6 +20,7 @@ pipeline {
     stage('Trigger Infra Deploy') {
       steps {
         sshagent(['macmini-git-key']) {
+          sh 'ssh-add -l'  
           sh '''
             ssh -v -o StrictHostKeyChecking=no -o IdentitiesOnly=yes geonwoo@geonwooui-Macmini.local '
               cd desktop/project/nginx &&
