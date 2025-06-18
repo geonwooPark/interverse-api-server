@@ -21,7 +21,7 @@ pipeline {
       steps {
         sshagent(['macmini-git-key']) {
           sh '''
-            ssh -o StrictHostKeyChecking=yes geonwoo@geonwooui-Macmini.local '
+            ssh -o StrictHostKeyChecking=no -o IdentitiesOnly=yes geonwoo@geonwooui-Macmini.local '
               cd desktop/project/nginx &&
               docker-compose pull interverse-api &&
               docker-compose up -d interverse-api
