@@ -31,10 +31,12 @@ pipeline {
             sh '''
               ssh -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local '
                 export PATH=$PATH:/usr/local/bin &&
-                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin &&
-                cd desktop/project/nginx &&
-                docker-compose -f docker-compose.service.yml pull interverse-api &&
-                docker-compose -f docker-compose.service.yml up -d interverse-api
+                DOCKER_USER="${DOCKER_USER}" DOCKER_PASS="${DOCKER_PASS}" bash -c "
+                  echo \\"$DOCKER_PASS\\" | docker login -u \\"$DOCKER_USER\\" --password-stdin &&
+                  cd ~/desktop/project/nginx &&
+                  docker-compose -f docker-compose.service.yml pull interverse-api &&
+                  docker-compose -f docker-compose.service.yml up -d interverse-api
+                "
               '
             '''
           }
