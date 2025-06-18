@@ -19,8 +19,15 @@ pipeline {
     }
     stage('Trigger Infra Deploy') {
       steps {
-        build job: 'deploy-infra'  
+        sshagent(['macmini-git-key']) {
+          sh '''
+            ssh -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local '
+              cd desktop/project/nginx &&
+              docker-compose pull interverse-api &&
+              docker-compose up -d interverse-api
+            '
+          '''
+        }
       }
-    }
   }
 }
