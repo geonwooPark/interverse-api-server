@@ -28,17 +28,15 @@ pipeline {
       steps {
         sshagent(['macmini-git-key']) {
           withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-            sh '''
+            sh """
               ssh -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local '
-                export PATH=$PATH:/usr/local/bin &&
-                DOCKER_USER="${DOCKER_USER}" DOCKER_PASS="${DOCKER_PASS}" bash -c "
-                  echo \\"$DOCKER_PASS\\" | docker login -u \\"$DOCKER_USER\\" --password-stdin &&
-                  cd ~/desktop/project/nginx &&
-                  docker-compose -f docker-compose.service.yml pull interverse-api &&
-                  docker-compose -f docker-compose.service.yml up -d interverse-api
-                "
+                export PATH=\\$PATH:/usr/local/bin &&
+                echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin &&
+                cd ~/desktop/project/nginx &&
+                docker-compose -f docker-compose.service.yml pull interverse-api &&
+                docker-compose -f docker-compose.service.yml up -d interverse-api
               '
-            '''
+            """
           }
         }
       }
