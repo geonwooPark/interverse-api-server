@@ -23,9 +23,10 @@ pipeline {
           sh 'ssh-add -l'  
           sh '''
             ssh -v -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local '
+              export PATH=$PATH:/usr/local/bin &&
               cd desktop/project/nginx &&
-              docker-compose -f docker-compose.service.yml pull interverse-api &&
-              docker-compose -f docker-compose.service.yml up -d interverse-api
+              /usr/local/bin/docker-compose -f docker-compose.service.yml pull interverse-api &&
+              /usr/local/bin/docker-compose -f docker-compose.service.yml up -d interverse-api
             '
           '''
         }
