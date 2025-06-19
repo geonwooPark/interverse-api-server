@@ -30,10 +30,10 @@ pipeline {
           withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
             sh """
               ssh -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local '
-                export PATH=\\$PATH:/usr/local/bin &&
-                export DOCKER_CONFIG=\\$HOME/.jenkins-docker &&
-                mkdir -p \\$DOCKER_CONFIG &&
-                echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin &&
+                export PATH=\\\$PATH:/usr/local/bin &&
+                export DOCKER_CONFIG=\\\$HOME/.jenkins-docker &&
+                mkdir -p \\\$DOCKER_CONFIG &&
+                echo \\\$DOCKER_PASS | docker --config \\\$DOCKER_CONFIG login -u \\\$DOCKER_USER --password-stdin &&
                 cd ~/desktop/project/nginx &&
                 docker-compose -f docker-compose.service.yml pull interverse-api &&
                 docker-compose -f docker-compose.service.yml up -d interverse-api
