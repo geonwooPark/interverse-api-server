@@ -14,10 +14,10 @@ RUN npm install
 COPY . .
 
 # TypeScript 빌드
-RUN npm run build
+RUN npm run build:prod
 
 # 포트 노출
 EXPOSE 8000
 
 # 실행 명령어
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:prod"]

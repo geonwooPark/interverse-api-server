@@ -1,4 +1,4 @@
-require("dotenv").config();
+import "./config/env";
 import "./module-alias";
 import "./db";
 import express from "express";
@@ -9,12 +9,11 @@ import assetsRouter from "@routers/assets.router";
 import healthRouter from "@routers/health.router";
 import { swaggerUi, swaggerSpec } from "./swagger";
 
+console.log("NODE_ENV =", process.env.NODE_ENV);
+
 const app = express();
 
-const allowedOrigins =
-  process.env.NODE_ENV === "production"
-    ? ["https://interverse.site"]
-    : ["http://localhost:5173"];
+const allowedOrigins = process.env.FRONTEND_URL;
 
 app.use(cors({ origin: allowedOrigins }));
 
@@ -33,5 +32,5 @@ app.get("/api-docs.json", (req, res) => {
 
 app.listen(process.env.PORT || 8000, () => {
   console.log(`${process.env.PORT || 8000}PORT 실행중..`);
-  console.log("📘 Swagger UI: http://localhost:8000/api-docs");
+  console.log(`📘 Swagger UI: ${process.env.DOMAIN}/api-docs`);
 });
