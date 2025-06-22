@@ -5,8 +5,10 @@ import {
   checkVerificationCode,
   createUser,
   getCurrentUser,
+  handleGoogleCallback,
   loginUser,
   sendVerificationEmail,
+  startGoogleOAuth,
 } from "@controllers/auth.controller";
 import { userGuardMiddleware } from "@middlewares/userGuard.middleware";
 
@@ -494,5 +496,31 @@ router.post("/check-id", checkId);
  *                   example: 서버 내부 오류
  */
 router.patch("/change-password", changePassword);
+
+/**
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     summary: 구글 OAuth 로그인 시작
+ *     description: 사용자를 구글 로그인 페이지로 리디렉션합니다.
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       302:
+ *         description: 구글 로그인 페이지로 리디렉션
+ *       500:
+ *         description: 서버 내부 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Google OAuth redirection failed
+ */
+router.get("/google", startGoogleOAuth);
+
+router.get("/google/callback", handleGoogleCallback);
 
 export default router;

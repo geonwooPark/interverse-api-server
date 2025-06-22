@@ -13,6 +13,7 @@ import { CustomError } from "@errors/CustomError";
 import { errorResponse, successResponse } from "@dto/response.dto";
 import { getEmailTemplete } from "@utils/getEmailTemplete";
 import { createSmtpTransport } from "@utils/sendEmail";
+import axios from "axios";
 
 export const createUser: RequestHandler = async (req, res) => {
   try {
@@ -95,6 +96,107 @@ export const loginUser: RequestHandler = async (req, res) => {
       return res.status(400).json(errorResponse(validationErrors));
     }
 
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
+
+    return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
+export const startGoogleOAuth: RequestHandler = async (req, res) => {
+  try {
+    const params = new URLSearchParams({
+      client_id: process.env.GOOGLE_CLIENT_ID!,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI!,
+      response_type: "code",
+      scope: "openid email profile",
+      access_type: "offline",
+      prompt: "consent",
+    }).toString();
+
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+
+    return res.redirect(googleAuthUrl);
+  } catch (error) {
+    return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
+export const handleGoogleCallback: RequestHandler = async (req, res) => {
+  try {
+    await connectDB();
+
+    const code = req.query.code as string;
+    if (!code) {
+      throw new CustomError("Authorization code가 없습니다.", 400);
+    }
+
+    // access_token 요청
+    const tokenRes = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      null,
+      {
+        params: {
+          code,
+          client_id: process.env.GOOGLE_CLIENT_ID!,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+          redirect_uri: process.env.GOOGLE_REDIRECT_URI!,
+          grant_type: "authorization_code",
+        },
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    const { access_token } = tokenRes.data;
+
+    // 사용자 정보 요청
+    const userRes = await axios.get(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
+
+    const { email, name } = userRes.data;
+
+    let payload;
+
+    const user = await User.findOne({ email });
+
+    if (user) {
+      payload = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      };
+    } else {
+      const newUser = await User.create({
+        nickname: name,
+        email,
+        password: "",
+        isOAuthUser: true,
+      });
+
+      payload = {
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role,
+      };
+    }
+
+    const message = encodeURIComponent("환영해요! 기다리고 있었어요 😊");
+
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/oauth?token=${getToken(
+        payload
+      )}&message=${message}`
+    );
+  } catch (error) {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json(errorResponse(error.message));
     }
