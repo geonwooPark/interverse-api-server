@@ -2,23 +2,13 @@ pipeline {
   agent any
 
   environment {
-    DOCKERFILE = ''
-    IMAGE_NAME = ''
+    IMAGE_NAME = 'ventileco/interverse-api-server:latest'
   }
 
   stages {
     stage('Checkout') {
       steps {
         checkout scm
-        script {
-          if (env.BRANCH_NAME == 'dev') {
-            env.DOCKERFILE = 'Dockerfile.alpha'
-            env.IMAGE_NAME = "ventileco/interverse-api-server:alpha"
-          } else {
-            env.DOCKERFILE = 'Dockerfile.prod'
-            env.IMAGE_NAME = "ventileco/interverse-api-server:latest"
-          }
-        }
       }
     }
 
@@ -27,7 +17,7 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh '''
             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-            docker build -f $DOCKERFILE -t $IMAGE_NAME ./
+            docker build -t $IMAGE_NAME ./
             docker push $IMAGE_NAME
           '''
         }
