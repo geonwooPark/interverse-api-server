@@ -2,7 +2,8 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = 'ventileco/interverse-api-server:latest'
+    IMAGE_NAME = ''
+    DOCKER_FILE = ''
   }
 
   stages {
@@ -12,12 +13,26 @@ pipeline {
       }
     }
 
+    stage('Set Dockerfile based on branch') {
+      steps {
+        script {
+          if (env.BRANCH_NAME == 'main') {
+            env.DOCKER_FILE = 'Dockerfile.prod'
+            env.IMAGE_NAME = 'ventileco/interverse-api-server:latest'
+          } else if (env.BRANCH_NAME == 'dev') {
+            env.DOCKER_FILE = 'Dockerfile.alpha'
+            env.IMAGE_NAME = 'ventileco/interverse-api-server:alpha'
+          }
+        }
+      }
+    }
+
     stage('Docker Login & Build Image') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh '''
             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-            docker build -t $IMAGE_NAME ./
+            docker build -f $DOCKER_FILE $IMAGE_NAME .
             docker push $IMAGE_NAME
           '''
         }
