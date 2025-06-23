@@ -32,7 +32,7 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh '''
             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-            docker build -f $DOCKER_FILE $IMAGE_NAME .
+            docker build -f $DOCKER_FILE -t $IMAGE_NAME .
             docker push $IMAGE_NAME
           '''
         }
