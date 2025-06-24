@@ -2,32 +2,14 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = ''
-    DOCKER_FILE = ''
+    IMAGE_NAME = 'ventileco/interverse-api-server:alpha'
+    DOCKER_FILE = 'Dockerfile.alpha'
   }
 
   stages {
     stage('Checkout') {
       steps {
         checkout scm
-      }
-    }
-
-    stage('Set Dockerfile based on branch') {
-      steps {
-       script {
-          if (env.BRANCH_NAME == 'main') {
-            env.DOCKER_FILE = 'Dockerfile.prod'
-            env.IMAGE_NAME = 'ventileco/interverse-api-server:latest'
-          } else if (env.BRANCH_NAME == 'dev') {
-            env.DOCKER_FILE = 'Dockerfile.alpha'
-            env.IMAGE_NAME = 'ventileco/interverse-api-server:alpha'
-          } else {
-            error("Unsupported branch: ${env.BRANCH_NAME}")
-          }
-          echo "Using Dockerfile: ${env.DOCKER_FILE}"
-          echo "Using Image Name: ${env.IMAGE_NAME}"
-        }
       }
     }
 
