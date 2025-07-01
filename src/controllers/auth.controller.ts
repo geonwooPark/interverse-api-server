@@ -14,46 +14,55 @@ import { errorResponse, successResponse } from "@dto/response.dto";
 import { getEmailTemplete } from "@utils/getEmailTemplete";
 import { createSmtpTransport } from "@utils/sendEmail";
 import axios from "axios";
+import { profileUploadToR2 } from "@middlewares/profileUpload";
 
 export const createUser: RequestHandler = async (req, res) => {
   try {
     await connectDB();
 
-    const validatedData = await CreateUserSchema.validate(req.body);
+    const { email, password, nickname } = req.body;
 
-    const { email, password, nickname } = validatedData;
+    const file = req.file;
 
-    const hashedPassword = await bcryptjs.hash(password, 12);
+    const validatedData = await CreateUserSchema.validate({
+      email,
+      password,
+      nickname,
+    });
 
-    const existedUser = await User.findOne<UserDocument>({ email });
+    const hashedPassword = await bcryptjs.hash(validatedData.password, 12);
+
+    const existedUser = await User.findOne({ email: validatedData.email });
     if (existedUser) {
       throw new CustomError("이미 존재하는 이메일입니다.", 409);
     }
 
+    let profile = "";
+    if (file) {
+      profile = await profileUploadToR2(file);
+    }
+
     const newUser = await User.create({
-      nickname,
-      email,
+      nickname: validatedData.nickname,
+      email: validatedData.email,
       password: hashedPassword,
+      profile,
     });
 
     const { password: _, ...safeUser } = newUser.toObject();
 
     return res.status(201).json(
-      successResponse("가입이 완료됐어요! 지금부터 함께해요 🙌'", {
+      successResponse("가입이 완료됐어요! 지금부터 함께해요 🙌", {
         user: safeUser,
       })
     );
   } catch (error) {
     if (error instanceof yup.ValidationError) {
-      const validationErrors = error.errors.join(", ");
-
-      return res.status(400).json(errorResponse(validationErrors));
+      return res.status(400).json(errorResponse(error.errors.join(", ")));
     }
 
     if (error instanceof CustomError) {
-      return res
-        .status(error.statusCode)
-        .json({ message: error.message, user: null });
+      return res.status(error.statusCode).json(errorResponse(error.message));
     }
 
     return res.status(500).json(errorResponse("서버 내부 오류"));
@@ -162,7 +171,7 @@ export const handleGoogleCallback: RequestHandler = async (req, res) => {
       }
     );
 
-    const { email, name } = userRes.data;
+    const { email, name, picture } = userRes.data;
 
     let payload;
 
@@ -173,9 +182,11 @@ export const handleGoogleCallback: RequestHandler = async (req, res) => {
         id: user.id,
         email: user.email,
         role: user.role,
+        profile: user.profile,
       };
     } else {
       const newUser = await User.create({
+        profile: picture,
         nickname: name,
         email,
         password: "",
@@ -186,6 +197,7 @@ export const handleGoogleCallback: RequestHandler = async (req, res) => {
         id: newUser.id,
         email: newUser.email,
         role: newUser.role,
+        profile: newUser.profile,
       };
     }
 

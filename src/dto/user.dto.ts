@@ -5,6 +5,7 @@ export type UserDto = {
   nickname: string;
   email: string;
   role: "admin" | "user";
+  profile?: string;
 };
 
 export const userDto = (user: UserDocument): UserDto => {
@@ -13,5 +14,6 @@ export const userDto = (user: UserDocument): UserDto => {
     nickname: user.nickname,
     email: user.email,
     role: user.role,
+    profile: user?.profile,
   };
 };

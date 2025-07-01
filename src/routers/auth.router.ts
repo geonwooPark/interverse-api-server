@@ -11,6 +11,7 @@ import {
   startGoogleOAuth,
 } from "@controllers/auth.controller";
 import { userGuardMiddleware } from "@middlewares/userGuard.middleware";
+import { profileUpload } from "@middlewares/profileUpload";
 
 const router = Router();
 
@@ -67,6 +68,7 @@ const router = Router();
  *                           example: user@example.com
  *                         role:
  *                           type: string
+ *                           enum: [user, admin]
  *                           example: user
  *       400:
  *         description: 요청 데이터 유효성 검사 실패
@@ -111,7 +113,7 @@ router.post("/login", loginUser);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -119,16 +121,17 @@ router.post("/login", loginUser);
  *               - password
  *               - nickname
  *             properties:
+ *               profile:
+ *                 type: string
+ *                 format: binary
+ *                 description: 업로드할 프로필 이미지
  *               email:
  *                 type: string
  *                 format: email
- *                 example: user@example.com
  *               password:
  *                 type: string
- *                 example: mypassword123
  *               nickname:
  *                 type: string
- *                 example: cooluser
  *     responses:
  *       201:
  *         description: 회원가입 성공
@@ -139,7 +142,7 @@ router.post("/login", loginUser);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: 회원가입 성공!
+ *                   example: 가입이 완료됐어요! 지금부터 함께해요 🙌
  *                 data:
  *                   type: object
  *                   properties:
@@ -148,13 +151,21 @@ router.post("/login", loginUser);
  *                       properties:
  *                         _id:
  *                           type: string
- *                           example: 608c1f9b4f1a4629a4e9c8a1
+ *                           example: 60d0fe4f5311236168a109ca
+ *                         profile:
+ *                           type: string
+ *                           example: https://pub-xxxxxx.r2.dev/interverse-user-profile-images/profiles/123456_img.png
  *                         email:
  *                           type: string
+ *                           format: email
  *                           example: user@example.com
  *                         nickname:
  *                           type: string
- *                           example: cooluser
+ *                           example: geonwoo
+ *                         role:
+ *                           type: string
+ *                           enum: [user, admin]
+ *                           example: user
  *       400:
  *         description: 요청 데이터 유효성 검사 실패
  *         content:
@@ -188,7 +199,7 @@ router.post("/login", loginUser);
  *                   type: string
  *                   example: 서버 내부 오류
  */
-router.post("/signup", createUser);
+router.post("/signup", profileUpload.single("profile"), createUser);
 
 /**
  * @swagger
@@ -219,6 +230,9 @@ router.post("/signup", createUser);
  *                         id:
  *                           type: string
  *                           example: 608c1f9b4f1a4629a4e9c8a1
+ *                         profile:
+ *                           type: string
+ *                           example: https://pub-xxxxxx.r2.dev/interverse-user-profile-images/profiles/123456_img.png
  *                         email:
  *                           type: string
  *                           example: user@example.com
@@ -227,6 +241,7 @@ router.post("/signup", createUser);
  *                           example: cooluser
  *                         role:
  *                           type: string
+ *                           enum: [user, admin]
  *                           example: user
  *       409:
  *         description: 존재하지 않는 회원
