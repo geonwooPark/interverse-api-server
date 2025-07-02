@@ -25,7 +25,7 @@ pipeline {
       }
     }
 
-    stage('Trigger Infra Deploy') {Add commentMore actions
+    stage('Trigger Infra Deploy') {
       steps {
         sshagent(['macmini-git-key']) {
             sh '''
