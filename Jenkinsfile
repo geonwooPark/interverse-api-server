@@ -34,7 +34,7 @@ pipeline {
                 export PATH=$PATH:/usr/local/bin &&
                 export DOCKER_CONFIG=/tmp/docker-config &&
                 mkdir -p /tmp/docker-config &&
-                echo "{\"auths\": {}, \"credsStore\": \"\"}" > /tmp/docker-config/config.json &&
+                echo "{\\\"auths\\\": {}, \\\"credsStore\\\": \\\"\\\"}" > /tmp/docker-config/config.json &&
                 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin &&
                 cd desktop/project/nginx &&
                 docker-compose -f docker-compose.service.yml pull interverse-api &&
