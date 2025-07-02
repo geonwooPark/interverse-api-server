@@ -25,16 +25,17 @@ pipeline {
       }
     }
 
-    stage('Trigger Infra Deploy') {
+    stage('Trigger Infra Deploy') {Add commentMore actions
       steps {
         sshagent(['macmini-git-key']) {
-          sh """
-            ssh -tt -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local bash -c \\
-            export PATH=\\\$PATH:/usr/local/bin && \\
-            cd ~/desktop/project/nginx && \\
-            docker-compose -f docker-compose.service.yml pull interverse-api && \\
-            docker-compose -f docker-compose.service.yml up -d interverse-api"
-          """
+            sh '''
+              ssh -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local '
+                export PATH=$PATH:/usr/local/bin &&
+                cd desktop/project/nginx &&
+                docker-compose -f docker-compose.service.yml pull interverse-api &&
+                docker-compose -f docker-compose.service.yml up -d interverse-api
+              '
+            '''
         }
       }
     }
