@@ -29,12 +29,9 @@ pipeline {
       steps {
         sshagent(['macmini-git-key']) {
           withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-            sh """#!/bin/bash
+            sh """
               ssh -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local \\
               "export PATH=\\\$PATH:/usr/local/bin && \\
-              export DOCKER_CONFIG=/tmp/docker-config && \\
-              mkdir -p /tmp/docker-config && \\
-              echo '{\\\\\"auths\\\\\": {}, \\\\\\\"credsStore\\\\\": \\\\\\\"\\\\\"}' > /tmp/docker-config/config.json && \\
               echo \\"$DOCKER_PASS\\" | docker login -u \\"$DOCKER_USER\\" --password-stdin && \\
               cd desktop/project/nginx && \\
               docker-compose -f docker-compose.service.yml pull interverse-api && \\
