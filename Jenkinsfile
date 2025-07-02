@@ -30,7 +30,6 @@ pipeline {
         sshagent(['macmini-git-key']) {
           sh """
             ssh -tt -o StrictHostKeyChecking=no geonwoo@geonwooui-Macmini.local bash -c \\
-            "security -v unlock-keychain ~/Library/Keychains/login.keychain-db && \\
             export PATH=\\\$PATH:/usr/local/bin && \\
             cd ~/desktop/project/nginx && \\
             docker-compose -f docker-compose.service.yml pull interverse-api && \\
