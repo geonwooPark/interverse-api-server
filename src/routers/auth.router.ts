@@ -7,6 +7,7 @@ import {
   getCurrentUser,
   handleGoogleCallback,
   loginUser,
+  refreshToken,
   sendVerificationEmail,
   startGoogleOAuth,
 } from "@controllers/auth.controller";
@@ -102,6 +103,51 @@ const router = Router();
  *                   example: 서버 내부 오류
  */
 router.post("/login", loginUser);
+
+/**
+ * @swagger
+ * /auth/refresh:
+ *   post:
+ *     summary: 액세스 토큰 재발급 (리프레시 토큰 사용)
+ *     tags:
+ *       - Auth
+ *     description:
+ *       클라이언트가 쿠키에 저장된 리프레시 토큰을 보내면,
+ *       서버가 토큰을 검증하여 새 액세스 토큰을 발급합니다.
+ *     responses:
+ *       200:
+ *         description: 새 액세스 토큰 발급 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: 새로 발급된 JWT 액세스 토큰
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       401:
+ *         description: 리프레시 토큰 없음 또는 유효하지 않음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 리프레시 토큰 없음
+ *       500:
+ *         description: 서버 내부 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 서버 내부 오류
+ */
+router.post("/refresh", refreshToken);
 
 /**
  * @swagger

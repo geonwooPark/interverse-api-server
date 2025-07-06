@@ -2,10 +2,10 @@ import { RequestHandler } from "express";
 import User, { UserDocument } from "@models/user.model";
 import TempUser from "@models/tempUser.model";
 import bcryptjs from "bcryptjs";
-import { getToken } from "@utils/jwt";
+import { getAccessToken, getRefreshToken } from "@utils/jwt";
 import { connectDB } from "@db/index";
 import { CustomRequest } from "@middlewares/userGuard.middleware";
-import { JwtPayload } from "jsonwebtoken";
+import { JsonWebTokenError, JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import { userDto } from "@dto/user.dto";
 import { CreateUserSchema, LoginSchema } from "@utils/vaildateSchemas";
 import * as yup from "yup";
@@ -15,6 +15,7 @@ import { getEmailTemplete } from "@utils/getEmailTemplete";
 import { createSmtpTransport } from "@utils/sendEmail";
 import axios from "axios";
 import { profileUploadToR2 } from "@middlewares/profileUpload";
+import jwt from "jsonwebtoken";
 
 export const createUser: RequestHandler = async (req, res) => {
   try {
@@ -92,9 +93,19 @@ export const loginUser: RequestHandler = async (req, res) => {
       role: user.role,
     };
 
+    const accessToken = getAccessToken(payload);
+    const refreshToken = getRefreshToken(payload);
+
+    res.cookie("interverse_refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+    });
+
     return res.status(200).json(
       successResponse("환영해요! 기다리고 있었어요 😊", {
-        token: getToken(payload),
+        token: accessToken,
         user: userDto(user),
       })
     );
@@ -103,6 +114,44 @@ export const loginUser: RequestHandler = async (req, res) => {
       const validationErrors = error.errors.join(", ");
 
       return res.status(400).json(errorResponse(validationErrors));
+    }
+
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
+
+    return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
+export const refreshToken: RequestHandler = async (req, res) => {
+  try {
+    const token = req.cookies.interverse_refreshToken;
+
+    if (!token)
+      return res.status(401).json(errorResponse("리프레시 토큰 없음"));
+
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_REFRESH_SECRET!
+    ) as JwtPayload;
+
+    const newAccessToken = getAccessToken({
+      id: payload.id,
+      email: payload.email,
+      role: payload.role,
+    });
+
+    return res.json({ token: newAccessToken });
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      return res.status(401).json(errorResponse("리프레시 토큰 만료"));
+    }
+
+    if (error instanceof JsonWebTokenError) {
+      return res
+        .status(401)
+        .json(errorResponse("리프레시 토큰이 유효하지 않음"));
     }
 
     if (error instanceof CustomError) {
@@ -204,7 +253,7 @@ export const handleGoogleCallback: RequestHandler = async (req, res) => {
     const message = encodeURIComponent("환영해요! 기다리고 있었어요 😊");
 
     return res.redirect(
-      `${process.env.FRONTEND_URL}/oauth?token=${getToken(
+      `${process.env.FRONTEND_URL}/oauth?token=${getAccessToken(
         payload
       )}&message=${message}`
     );
