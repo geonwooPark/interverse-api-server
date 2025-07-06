@@ -3,6 +3,7 @@ import "./module-alias";
 import "./db";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import authRouter from "@routers/auth.router";
 import roomsRouter from "@routers/rooms.router";
 import assetsRouter from "@routers/assets.router";
@@ -15,10 +16,11 @@ const app = express();
 
 const allowedOrigins = process.env.FRONTEND_URL;
 
-app.use(cors({ origin: allowedOrigins }));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 app.use("/auth", authRouter);
 app.use("/rooms", roomsRouter);
