@@ -250,12 +250,20 @@ export const handleGoogleCallback: RequestHandler = async (req, res) => {
       };
     }
 
+    const accessToken = getAccessToken(payload);
+    const refreshToken = getRefreshToken(payload);
+
+    res.cookie("interverse_refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+    });
+
     const message = encodeURIComponent("환영해요! 기다리고 있었어요 😊");
 
     return res.redirect(
-      `${process.env.FRONTEND_URL}/oauth?token=${getAccessToken(
-        payload
-      )}&message=${message}`
+      `${process.env.FRONTEND_URL}/oauth?token=${accessToken}&message=${message}`
     );
   } catch (error) {
     if (error instanceof CustomError) {
