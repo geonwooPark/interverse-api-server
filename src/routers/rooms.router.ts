@@ -353,7 +353,7 @@ router.delete("/:roomId", userGuardMiddleware, deleteRoom);
 
 /**
  * @swagger
- * /rooms/{roomId}/password:
+ * /rooms/{roomId}/check-password:
  *   post:
  *     summary: 방 비밀번호 확인
  *     tags:
