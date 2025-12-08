@@ -38,6 +38,7 @@ const router = Router();
  *                      - name
  *                      - thumbnail
  *                      - mapSrc
+ *                      - builder
  *                     properties:
  *                       _id:
  *                         type: string
@@ -51,6 +52,9 @@ const router = Router();
  *                       mapSrc:
  *                          type: string
  *                          example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
+ *                       builder:
+ *                          type: string
+ *                          example: https://example.com/builder
  *       500:
  *         description: 서버 내부 오류
  *         content:
@@ -83,6 +87,7 @@ router.get("/maps", userGuardMiddleware, getMaps);
  *               - name
  *               - thumbnail
  *               - mapSrc
+ *               - builder
  *             properties:
  *               name:
  *                 type: string
@@ -93,6 +98,9 @@ router.get("/maps", userGuardMiddleware, getMaps);
  *               mapSrc:
  *                 type: string
  *                 example: https://example.com/map-source
+ *               builder:
+ *                 type: string
+ *                 example: https://example.com/builder
  *     responses:
  *       200:
  *         description: 맵 생성 성공
@@ -119,6 +127,9 @@ router.get("/maps", userGuardMiddleware, getMaps);
  *                     mapSrc:
  *                       type: string
  *                       example: https://example.com/map-source
+ *                     builder:
+ *                       type: string
+ *                       example: https://example.com/builder
  *       500:
  *         description: 서버 내부 오류
  *         content:

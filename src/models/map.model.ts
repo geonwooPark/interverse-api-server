@@ -5,6 +5,7 @@ export interface MapDocument extends Document {
   name: string;
   thumbnail: string;
   mapSrc: string;
+  builder: string;
 }
 
 const mapModel = new Schema(
@@ -18,6 +19,10 @@ const mapModel = new Schema(
       required: true,
     },
     mapSrc: {
+      type: String,
+      required: true,
+    },
+    builder: {
       type: String,
       required: true,
     },

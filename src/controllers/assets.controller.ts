@@ -19,7 +19,7 @@ export const getMaps: RequestHandler = async (req, res) => {
 };
 
 export const createMap: RequestHandler = async (req, res) => {
-  const { name, thumbnail, mapSrc } = req.body;
+  const { name, thumbnail, mapSrc, builder } = req.body;
 
   try {
     await connectDB();
@@ -28,6 +28,7 @@ export const createMap: RequestHandler = async (req, res) => {
       name,
       thumbnail,
       mapSrc,
+      builder,
     });
 
     return res

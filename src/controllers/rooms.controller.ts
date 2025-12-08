@@ -15,9 +15,12 @@ export const getRooms: RequestHandler = async (req: JwtPayload, res) => {
   try {
     await connectDB();
 
-    const logs = await RoomLog.find({ userId })
-      .populate("room")
-      .populate("map");
+    const logs = await RoomLog.find({ userId }).populate({
+      path: "room",
+      populate: {
+        path: "map",
+      },
+    });
 
     return res
       .status(200)
@@ -35,7 +38,7 @@ export const getSingleRoom: RequestHandler = async (req: JwtPayload, res) => {
   try {
     await connectDB();
 
-    const room = await Room.findById(roomId);
+    const room = await Room.findById(roomId).populate("map");
 
     if (room) {
       const isHost = room.host === userId;
@@ -60,7 +63,7 @@ export const joinRoom: RequestHandler = async (req: JwtPayload, res) => {
   try {
     await connectDB();
 
-    const room = await Room.findById(roomId);
+    const room = await Room.findById(roomId).populate("map");
 
     if (!room) {
       throw new CustomError("방을 찾을 수 없습니다.", 404);
@@ -104,7 +107,7 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
     const newRoom = await Room.create({
       title,
       headCount,
-      mapSrc: mapDoc?.mapSrc,
+      map: mapDoc?._id,
       host: userId,
     });
 
@@ -115,12 +118,14 @@ export const createRoom: RequestHandler = async (req: JwtPayload, res) => {
 
     await RoomLog.create({ userId, room: newRoom.id, map: mapDoc?._id });
 
+    const populatedRoom = await Room.findById(newRoom._id).populate("map");
+
     return res
       .status(201)
       .json(
         successResponse(
           "함께할 준비 되셨나요? 새로운 방이 시작됐어요!",
-          newRoom
+          populatedRoom
         )
       );
   } catch (error) {

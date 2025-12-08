@@ -35,17 +35,27 @@ const router = Router();
  *                   type: array
  *                   items:
  *                     type: object
+ *                     required:
+ *                       - _id
+ *                       - userId
+ *                       - room
+ *                       - joinedAt
  *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 645f3d8f2345abcd12340001
  *                       userId:
  *                         type: string
  *                         format: objectId
  *                         example: 645f3d8f2345abcd12340001
- *                       joinedAt:
- *                         type: string
- *                         format: date-time
- *                         example: 2025-05-20T14:00:00Z
  *                       room:
  *                         type: object
+ *                         required:
+ *                           - _id
+ *                           - title
+ *                           - host
+ *                           - headCount
+ *                           - map
  *                         properties:
  *                           _id:
  *                             type: string
@@ -59,24 +69,46 @@ const router = Router();
  *                           headCount:
  *                             type: number
  *                             example: 4
- *                           mapSrc:
+ *                           map:
+ *                             type: object
+ *                             required:
+ *                               - _id
+ *                               - name
+ *                               - thumbnail
+ *                               - mapSrc
+ *                               - builder
+ *                             properties:
+ *                               _id:
+ *                                 type: string
+ *                                 example: 645f3d8f2345abcd12345680
+ *                               name:
+ *                                 type: string
+ *                                 example: office
+ *                               thumbnail:
+ *                                 type: string
+ *                                 example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
+ *                               mapSrc:
+ *                                 type: string
+ *                                 example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
+ *                               builder:
+ *                                 type: string
+ *                                 example: https://example.com/builder
+ *                               createdAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                               updatedAt:
+ *                                 type: string
+ *                                 format: date-time
+ *                           createdAt:
  *                             type: string
- *                             example: https://example.com/map-source
- *                       map:
- *                         type: object
- *                         properties:
- *                           _id:
+ *                             format: date-time
+ *                           updatedAt:
  *                             type: string
- *                             example: 645f3d8f2345abcd12345680
- *                           name:
- *                             type: string
- *                             example: office
- *                           thumbnail:
- *                             type: string
- *                             example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
- *                           source:
- *                             type: string
- *                             example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
+ *                             format: date-time
+ *                       joinedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2025-05-20T14:00:00Z
  *       401:
  *         description: 인증 실패
  *       500:
@@ -124,18 +156,49 @@ router.get("/", userGuardMiddleware, getRooms);
  *                   properties:
  *                     _id:
  *                       type: string
- *                     name:
- *                       type: string
- *                     host:
- *                       type: string
- *                     isHost:
- *                       type: boolean
+ *                       example: 645f3d8f2345abcd12345679
  *                     title:
  *                       type: string
- *                     mapSrc:
+ *                       example: Sample Room
+ *                     host:
  *                       type: string
+ *                       example: abcd12345679
  *                     headCount:
  *                       type: number
+ *                       example: 4
+ *                     map:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: 645f3d8f2345abcd12345680
+ *                         name:
+ *                           type: string
+ *                           example: office
+ *                         thumbnail:
+ *                           type: string
+ *                           example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
+ *                         mapSrc:
+ *                           type: string
+ *                           example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
+ *                         builder:
+ *                           type: string
+ *                           example: https://example.com/builder
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                     isHost:
+ *                       type: boolean
+ *                       example: true
  *       401:
  *         description: 인증 실패
  *       500:
@@ -184,6 +247,7 @@ router.get("/:roomId", userGuardMiddleware, getSingleRoom);
  *               mapSrc:
  *                 type: string
  *                 example: "office"
+ *                 description: 맵의 mapSrc로 맵을 찾아서 연결합니다
  *     responses:
  *       201:
  *         description: 방 생성 성공
@@ -194,20 +258,52 @@ router.get("/:roomId", userGuardMiddleware, getSingleRoom);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "방이 생성되었습니다."
+ *                   example: 함께할 준비 되셨나요? 새로운 방이 시작됐어요!
  *                 data:
  *                   type: object
  *                   properties:
  *                     _id:
  *                       type: string
+ *                       example: 645f3d8f2345abcd12345679
  *                     title:
  *                       type: string
+ *                       example: 새로운 방
  *                     headCount:
  *                       type: number
+ *                       example: 6
  *                     host:
  *                       type: string
- *                     mapSrc:
+ *                       example: abcd12345679
+ *                     map:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: 645f3d8f2345abcd12345680
+ *                         name:
+ *                           type: string
+ *                           example: office
+ *                         thumbnail:
+ *                           type: string
+ *                           example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
+ *                         mapSrc:
+ *                           type: string
+ *                           example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
+ *                         builder:
+ *                           type: string
+ *                           example: https://example.com/builder
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *                     createdAt:
  *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
  *       400:
  *         description: 잘못된 요청
  *       401:
@@ -257,14 +353,46 @@ router.post("/", userGuardMiddleware, createRoom);
  *                   properties:
  *                     _id:
  *                       type: string
+ *                       example: 645f3d8f2345abcd12345679
  *                     title:
  *                       type: string
+ *                       example: Sample Room
  *                     headCount:
  *                       type: number
+ *                       example: 4
  *                     host:
  *                       type: string
- *                     mapSrc:
+ *                       example: abcd12345679
+ *                     map:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: 645f3d8f2345abcd12345680
+ *                         name:
+ *                           type: string
+ *                           example: office
+ *                         thumbnail:
+ *                           type: string
+ *                           example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
+ *                         mapSrc:
+ *                           type: string
+ *                           example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
+ *                         builder:
+ *                           type: string
+ *                           example: https://example.com/builder
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *                     createdAt:
  *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
  *       404:
  *         description: 방을 찾을 수 없음
  *         content:
