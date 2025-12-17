@@ -18,7 +18,10 @@ import { errorResponse, successResponse } from "@dto/response.dto";
 import { getEmailTemplete } from "@utils/getEmailTemplete";
 import { createSmtpTransport } from "@utils/sendEmail";
 import axios from "axios";
-import { profileUploadToR2 } from "@middlewares/profileUpload";
+import {
+  profileUploadToR2,
+  deleteProfileFromR2,
+} from "@middlewares/profileUpload";
 import jwt from "jsonwebtoken";
 
 export const createUser: RequestHandler = async (req, res) => {
@@ -471,6 +474,50 @@ export const changeNickname: RequestHandler = async (
       return res.status(400).json(errorResponse(error.errors.join(", ")));
     }
 
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
+
+    return res.status(500).json(errorResponse("서버 내부 오류"));
+  }
+};
+
+export const changeProfile: RequestHandler = async (
+  req: CustomRequest,
+  res
+) => {
+  const file = req.file;
+
+  try {
+    await connectDB();
+
+    const { email } = req.auth as JwtPayload;
+
+    const user = await User.findOne<UserDocument>({ email });
+    if (!user) {
+      throw new CustomError("존재하지 않는 회원입니다.", 404);
+    }
+
+    if (!file) {
+      throw new CustomError("프로필 이미지가 필요합니다.", 400);
+    }
+
+    // 기존 프로필 이미지가 있으면 삭제
+    if (user.profile) {
+      await deleteProfileFromR2(user.profile);
+    }
+
+    const profile = await profileUploadToR2(file);
+
+    user.profile = profile;
+    await user.save();
+
+    return res.status(200).json(
+      successResponse("프로필 이미지가 성공적으로 변경되었어요!", {
+        user: userDto(user),
+      })
+    );
+  } catch (error) {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json(errorResponse(error.message));
     }

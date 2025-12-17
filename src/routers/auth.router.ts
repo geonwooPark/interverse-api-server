@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   changeNickname,
   changePassword,
+  changeProfile,
   checkId,
   checkVerificationCode,
   createUser,
@@ -656,6 +657,109 @@ router.patch("/change-password", changePassword);
  *                   example: 서버 내부 오류
  */
 router.patch("/change-nickname", userGuardMiddleware, changeNickname);
+
+/**
+ * @swagger
+ * /auth/change-profile:
+ *   patch:
+ *     summary: 프로필 이미지 변경
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - profile
+ *             properties:
+ *               profile:
+ *                 type: string
+ *                 format: binary
+ *                 description: 업로드할 프로필 이미지
+ *     responses:
+ *       200:
+ *         description: 프로필 이미지 변경 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 프로필 이미지가 성공적으로 변경되었어요!
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: 608c1f9b4f1a4629a4e9c8a1
+ *                         profile:
+ *                           type: string
+ *                           example: https://pub-xxxxxx.r2.dev/interverse-user-profile-images/profiles/123456_img.png
+ *                         email:
+ *                           type: string
+ *                           example: user@example.com
+ *                         nickname:
+ *                           type: string
+ *                           example: geonwoo
+ *                         role:
+ *                           type: string
+ *                           enum: [user, admin]
+ *                           example: user
+ *       400:
+ *         description: 프로필 이미지가 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 프로필 이미지가 필요합니다.
+ *       401:
+ *         description: 인증 실패 (토큰 없음 또는 만료)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 인증이 필요합니다.
+ *       404:
+ *         description: 존재하지 않는 회원
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 존재하지 않는 회원입니다.
+ *       500:
+ *         description: 서버 내부 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 서버 내부 오류
+ */
+router.patch(
+  "/change-profile",
+  userGuardMiddleware,
+  profileUpload.single("profile"),
+  changeProfile
+);
 
 /**
  * @swagger

@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import multer from "multer";
 
 const storage = multer.memoryStorage();
@@ -17,9 +21,9 @@ const r2 = new S3Client({
   },
 });
 
-export const profileUploadToR2 = async (file: Express.Multer.File) => {
-  const bucket = "interverse-user-profile-images";
+const bucket = "interverse-user-profile-images";
 
+export const profileUploadToR2 = async (file: Express.Multer.File) => {
   const key = `profiles/${Date.now()}_${file.originalname}`;
 
   const command = new PutObjectCommand({
@@ -32,4 +36,20 @@ export const profileUploadToR2 = async (file: Express.Multer.File) => {
   await r2.send(command);
 
   return `${process.env.R2_PUBLIC_DOMAIN}/${key}`;
+};
+
+export const deleteProfileFromR2 = async (profileUrl: string) => {
+  const publicDomain = process.env.R2_PUBLIC_DOMAIN;
+  if (!publicDomain || !profileUrl.startsWith(publicDomain)) {
+    return;
+  }
+
+  const key = profileUrl.replace(`${publicDomain}/`, "");
+
+  const command = new DeleteObjectCommand({
+    Bucket: bucket,
+    Key: key,
+  });
+
+  await r2.send(command);
 };
