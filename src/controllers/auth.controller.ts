@@ -7,7 +7,11 @@ import { connectDB } from "@db/index";
 import { CustomRequest } from "@middlewares/userGuard.middleware";
 import { JsonWebTokenError, JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import { userDto } from "@dto/user.dto";
-import { CreateUserSchema, LoginSchema } from "@utils/vaildateSchemas";
+import {
+  CreateUserSchema,
+  LoginSchema,
+  ChangeNicknameSchema,
+} from "@utils/vaildateSchemas";
 import * as yup from "yup";
 import { CustomError } from "@errors/CustomError";
 import { errorResponse, successResponse } from "@dto/response.dto";
@@ -433,5 +437,44 @@ export const changePassword: RequestHandler = async (req, res) => {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json(errorResponse(error.message));
     }
+  }
+};
+
+export const changeNickname: RequestHandler = async (
+  req: CustomRequest,
+  res
+) => {
+  const { nickname } = req.body;
+
+  try {
+    await connectDB();
+
+    const { email } = req.auth as JwtPayload;
+
+    const validatedData = await ChangeNicknameSchema.validate({ nickname });
+
+    const user = await User.findOne<UserDocument>({ email });
+    if (!user) {
+      throw new CustomError("존재하지 않는 회원입니다.", 404);
+    }
+
+    user.nickname = validatedData.nickname;
+    await user.save();
+
+    return res.status(200).json(
+      successResponse("닉네임이 성공적으로 변경되었어요!", {
+        user: userDto(user),
+      })
+    );
+  } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return res.status(400).json(errorResponse(error.errors.join(", ")));
+    }
+
+    if (error instanceof CustomError) {
+      return res.status(error.statusCode).json(errorResponse(error.message));
+    }
+
+    return res.status(500).json(errorResponse("서버 내부 오류"));
   }
 };

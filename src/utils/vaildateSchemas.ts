@@ -28,3 +28,10 @@ export const LoginSchema = yup.object({
     .required("비밀번호를 입력해주세요.")
     .min(8, "비밀번호는 최소 8자리 이상이어야 합니다."),
 });
+
+export const ChangeNicknameSchema = yup.object({
+  nickname: yup
+    .string()
+    .required("이름을 입력해주세요.")
+    .max(10, "이름은 10자 이하로 입력해주세요."),
+});

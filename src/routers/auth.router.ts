@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  changeNickname,
   changePassword,
   checkId,
   checkVerificationCode,
@@ -557,6 +558,104 @@ router.post("/check-id", checkId);
  *                   example: 서버 내부 오류
  */
 router.patch("/change-password", changePassword);
+
+/**
+ * @swagger
+ * /auth/change-nickname:
+ *   patch:
+ *     summary: 닉네임 변경
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nickname
+ *             properties:
+ *               nickname:
+ *                 type: string
+ *                 maxLength: 10
+ *                 example: newNickname
+ *     responses:
+ *       200:
+ *         description: 닉네임 변경 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 닉네임이 성공적으로 변경되었어요!
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: 608c1f9b4f1a4629a4e9c8a1
+ *                         profile:
+ *                           type: string
+ *                           example: https://pub-xxxxxx.r2.dev/interverse-user-profile-images/profiles/123456_img.png
+ *                         email:
+ *                           type: string
+ *                           example: user@example.com
+ *                         nickname:
+ *                           type: string
+ *                           example: newNickname
+ *                         role:
+ *                           type: string
+ *                           enum: [user, admin]
+ *                           example: user
+ *       400:
+ *         description: 요청 데이터 유효성 검사 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 이름은 10자 이하로 입력해주세요.
+ *       401:
+ *         description: 인증 실패 (토큰 없음 또는 만료)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 인증이 필요합니다.
+ *       404:
+ *         description: 존재하지 않는 회원
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 존재하지 않는 회원입니다.
+ *       500:
+ *         description: 서버 내부 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 서버 내부 오류
+ */
+router.patch("/change-nickname", userGuardMiddleware, changeNickname);
 
 /**
  * @swagger
