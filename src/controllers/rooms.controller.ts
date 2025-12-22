@@ -12,19 +12,39 @@ import RoomCredential from "@models/roomCredential.model";
 export const getRooms: RequestHandler = async (req: JwtPayload, res) => {
   const { id: userId } = req.auth;
 
+  const page = parseInt(req.query.page as string) || 1;
+
+  const limit = parseInt(req.query.limit as string) || 6;
+
+  const skip = (page - 1) * limit;
+
   try {
     await connectDB();
 
-    const logs = await RoomLog.find({ userId }).populate({
-      path: "room",
-      populate: {
-        path: "map",
-      },
-    });
+    const totalCount = await RoomLog.countDocuments({ userId });
 
-    return res
-      .status(200)
-      .json(successResponse("참여한 방 리스트입니다.", logs));
+    const logs = await RoomLog.find({ userId })
+      .populate({
+        path: "room",
+        populate: {
+          path: "map",
+        },
+      })
+      .sort({ joinedAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json(
+      successResponse("참여한 방 리스트입니다.", {
+        logs,
+        metadata: {
+          page,
+          limit,
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+        },
+      })
+    );
   } catch (error) {
     return res.status(500).json(errorResponse("서버 내부 오류"));
   }

@@ -20,6 +20,19 @@ const router = Router();
  *       - Rooms
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 페이지 번호
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 6
+ *         description: 페이지당 항목 수
  *     responses:
  *       200:
  *         description: 참여한 방 리스트 반환
@@ -32,83 +45,101 @@ const router = Router();
  *                   type: string
  *                   example: 참여한 방 리스트입니다.
  *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     required:
- *                       - _id
- *                       - userId
- *                       - room
- *                       - joinedAt
- *                     properties:
- *                       _id:
- *                         type: string
- *                         example: 645f3d8f2345abcd12340001
- *                       userId:
- *                         type: string
- *                         format: objectId
- *                         example: 645f3d8f2345abcd12340001
- *                       room:
+ *                   type: object
+ *                   properties:
+ *                     logs:
+ *                       type: array
+ *                       items:
  *                         type: object
  *                         required:
  *                           - _id
- *                           - title
- *                           - host
- *                           - headCount
- *                           - map
+ *                           - userId
+ *                           - room
+ *                           - joinedAt
  *                         properties:
  *                           _id:
  *                             type: string
- *                             example: 645f3d8f2345abcd12345679
- *                           title:
+ *                             example: 645f3d8f2345abcd12340001
+ *                           userId:
  *                             type: string
- *                             example: Sample Room
- *                           host:
- *                             type: string
- *                             example: abcd12345679
- *                           headCount:
- *                             type: number
- *                             example: 4
- *                           map:
+ *                             format: objectId
+ *                             example: 645f3d8f2345abcd12340001
+ *                           room:
  *                             type: object
  *                             required:
  *                               - _id
- *                               - name
- *                               - thumbnail
- *                               - mapSrc
- *                               - builder
+ *                               - title
+ *                               - host
+ *                               - headCount
+ *                               - map
  *                             properties:
  *                               _id:
  *                                 type: string
- *                                 example: 645f3d8f2345abcd12345680
- *                               name:
+ *                                 example: 645f3d8f2345abcd12345679
+ *                               title:
  *                                 type: string
- *                                 example: office
- *                               thumbnail:
+ *                                 example: Sample Room
+ *                               host:
  *                                 type: string
- *                                 example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
- *                               mapSrc:
- *                                 type: string
- *                                 example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
- *                               builder:
- *                                 type: string
- *                                 example: https://example.com/builder
+ *                                 example: abcd12345679
+ *                               headCount:
+ *                                 type: number
+ *                                 example: 4
+ *                               map:
+ *                                 type: object
+ *                                 required:
+ *                                   - _id
+ *                                   - name
+ *                                   - thumbnail
+ *                                   - mapSrc
+ *                                   - builder
+ *                                 properties:
+ *                                   _id:
+ *                                     type: string
+ *                                     example: 645f3d8f2345abcd12345680
+ *                                   name:
+ *                                     type: string
+ *                                     example: office
+ *                                   thumbnail:
+ *                                     type: string
+ *                                     example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.png
+ *                                   mapSrc:
+ *                                     type: string
+ *                                     example: https://pub-b1bcdfea0c06423d871965b53c9a3103.r2.dev/thumbnails/office.json
+ *                                   builder:
+ *                                     type: string
+ *                                     example: https://example.com/builder
+ *                                   createdAt:
+ *                                     type: string
+ *                                     format: date-time
+ *                                   updatedAt:
+ *                                     type: string
+ *                                     format: date-time
  *                               createdAt:
  *                                 type: string
  *                                 format: date-time
  *                               updatedAt:
  *                                 type: string
  *                                 format: date-time
- *                           createdAt:
+ *                           joinedAt:
  *                             type: string
  *                             format: date-time
- *                           updatedAt:
- *                             type: string
- *                             format: date-time
- *                       joinedAt:
- *                         type: string
- *                         format: date-time
- *                         example: 2025-05-20T14:00:00Z
+ *                             example: 2025-05-20T14:00:00Z
+ *                     metadata:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: number
+ *                           example: 1
+ *                         limit:
+ *                           type: number
+ *                           example: 6
+ *                         totalCount:
+ *                           type: number
+ *                           example: 50
+ *                         totalPages:
+ *                           type: number
+ *                           example: 5
  *       401:
  *         description: 인증 실패
  *       500:
