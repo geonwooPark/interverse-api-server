@@ -50,9 +50,9 @@ model Room {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  map            Map              @relation(fields: [mapId], references: [id], onDelete: Cascade)
-  credential     RoomCredential?
-  roomLogs       RoomLog[]
+  map        Map             @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  credential RoomCredential?
+  roomLogs   RoomLog[]
 
   @@map("rooms")
 }
@@ -80,10 +80,10 @@ model RoomLog {
 }
 
 model TempUser {
-  id              String   @id @default(uuid())
-  email           String
+  id               String   @id @default(uuid())
+  email            String
   verificationCode Int
-  createdAt       DateTime @default(now())
+  createdAt        DateTime @default(now())
 
   @@index([createdAt])
   @@map("temp_users")
@@ -100,4 +100,3 @@ model Character {
 
   @@map("characters")
 }
-

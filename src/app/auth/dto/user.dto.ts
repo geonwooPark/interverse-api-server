@@ -1,0 +1,18 @@
+export type UserDto = {
+  id: string;
+  nickname: string;
+  email: string;
+  role: 'admin' | 'user';
+  profile?: string;
+};
+
+export const userDto = (user: any): UserDto => {
+  return {
+    id: user.id || user._id,
+    nickname: user.nickname,
+    email: user.email,
+    role: user.role,
+    profile: user?.profile,
+  };
+};
+
