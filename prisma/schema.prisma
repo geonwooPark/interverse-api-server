@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  profile     String?
+  email       String   @unique
+  nickname    String
+  password    String?
+  role        String   @default("user")
+  isOAuthUser Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  roomLogs RoomLog[]
+
+  @@map("users")
+}
+
+model Map {
+  id        String   @id @default(uuid())
+  name      String
+  thumbnail String
+  mapSrc    String
+  builder   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rooms Room[]
+
+  @@map("maps")
+}
+
+model Room {
+  id        String   @id @default(uuid())
+  title     String
+  host      String
+  headCount Int
+  mapId     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  map            Map              @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  credential     RoomCredential?
+  roomLogs       RoomLog[]
+
+  @@map("rooms")
+}
+
+model RoomCredential {
+  id       String @id @default(uuid())
+  roomId   String @unique
+  password String
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("room_credentials")
+}
+
+model RoomLog {
+  id       String   @id @default(uuid())
+  userId   String
+  roomId   String
+  joinedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("room_logs")
+}
+
+model TempUser {
+  id              String   @id @default(uuid())
+  email           String
+  verificationCode Int
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("temp_users")
+}
+
+model Character {
+  id        String   @id @default(uuid())
+  name      String
+  source    String
+  width     Int
+  height    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("characters")
+}
+

@@ -6,14 +6,22 @@
   "scripts": {
     "build:alpha": "cross-env NODE_ENV=alpha tsc",
     "build:prod": "cross-env NODE_ENV=production tsc",
-    "start:dev": "cross-env NODE_ENV=development tsnd --transpile-only -r tsconfig-paths/register src/index.ts",
+    "start:dev": "npm run db:up && cross-env NODE_ENV=development tsnd --transpile-only -r tsconfig-paths/register src/index.ts",
     "start:alpha": "npm run build:alpha && cross-env NODE_ENV=alpha node dist/index.js",
-    "start:prod": "npm run build:prod && cross-env NODE_ENV=production node dist/index.js"
+    "start:prod": "npm run build:prod && cross-env NODE_ENV=production node dist/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down"
   },
   "author": "ventileco",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.839.0",
+    "@prisma/client": "^6.14.0",
     "axios": "^1.10.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
@@ -26,6 +34,7 @@
     "mongoose": "^8.5.1",
     "multer": "^2.0.1",
     "nodemailer": "^6.9.15",
+    "prisma": "^6.14.0",
     "sharp": "^0.34.5",
     "uuid": "^10.0.0",
     "yup": "^1.4.0"
@@ -45,6 +54,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
     "cross-env": "^7.0.3",
+    "dotenv-cli": "^11.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "ts-node-dev": "^2.0.0",
