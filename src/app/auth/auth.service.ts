@@ -28,7 +28,6 @@ import {
   profileUploadToR2,
   deleteProfileFromR2,
 } from "../../utils/profile-upload";
-import type { Express } from "express-serve-static-core";
 
 @Injectable()
 export class AuthService {
