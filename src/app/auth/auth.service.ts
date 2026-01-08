@@ -38,10 +38,7 @@ export class AuthService {
   ) {}
 
   getAccessToken(payload: any) {
-    return this.jwtService.sign(payload, {
-      secret: this.configService.get<string>("JWT_SECRET_KEY"),
-      expiresIn: "30m",
-    });
+    return this.jwtService.sign(payload);
   }
 
   getRefreshToken(payload: any) {
