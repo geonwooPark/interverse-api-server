@@ -1,7 +1,8 @@
-import { NestFactory } from "@nestjs/core";
+import { NestFactory, Reflector } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { TransformInterceptor } from "./common/interceptors/transform.interceptor";
 import cookieParser from "cookie-parser";
 import { AppModule } from "./app/app.module";
 
@@ -20,6 +21,9 @@ async function bootstrap() {
 
   // Global exception filter
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Global interceptor
+  app.useGlobalInterceptors(new TransformInterceptor(new Reflector()));
 
   // Global validation pipe
   app.useGlobalPipes(
