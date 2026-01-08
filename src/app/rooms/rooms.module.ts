@@ -9,7 +9,7 @@ import { RoomsService } from "./rooms.service";
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>("jwtSecretKey"),
+        secret: configService.get<string>("JWT_SECRET_KEY"),
         signOptions: { expiresIn: "30m" },
       }),
       inject: [ConfigService],

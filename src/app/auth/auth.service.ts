@@ -39,14 +39,14 @@ export class AuthService {
 
   getAccessToken(payload: any) {
     return this.jwtService.sign(payload, {
-      secret: this.configService.get<string>("jwtSecretKey"),
+      secret: this.configService.get<string>("JWT_SECRET_KEY"),
       expiresIn: "30m",
     });
   }
 
   getRefreshToken(payload: any) {
     return this.jwtService.sign(payload, {
-      secret: this.configService.get<string>("jwtRefreshSecret"),
+      secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
       expiresIn: "7d",
     });
   }
@@ -124,7 +124,7 @@ export class AuthService {
   async refreshToken(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get<string>("jwtRefreshSecret"),
+        secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
       });
 
       const newAccessToken = this.getAccessToken({
@@ -306,8 +306,8 @@ export class AuthService {
 
   async startGoogleOAuth() {
     const params = new URLSearchParams({
-      client_id: this.configService.get<string>("googleClientId")!,
-      redirect_uri: this.configService.get<string>("googleRedirectUri")!,
+      client_id: this.configService.get<string>("GOOGLE_CLIENT_ID")!,
+      redirect_uri: this.configService.get<string>("GOOGLE_REDIRECT_URI")!,
       response_type: "code",
       scope: "openid email profile",
       access_type: "offline",
@@ -329,9 +329,11 @@ export class AuthService {
       {
         params: {
           code,
-          client_id: this.configService.get<string>("googleClientId")!,
-          client_secret: this.configService.get<string>("googleClientSecret")!,
-          redirect_uri: this.configService.get<string>("googleRedirectUri")!,
+          client_id: this.configService.get<string>("GOOGLE_CLIENT_ID")!,
+          client_secret: this.configService.get<string>(
+            "GOOGLE_CLIENT_SECRET"
+          )!,
+          redirect_uri: this.configService.get<string>("GOOGLE_REDIRECT_URI")!,
           grant_type: "authorization_code",
         },
         headers: {

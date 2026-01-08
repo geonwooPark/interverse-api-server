@@ -5,7 +5,6 @@ import {
 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
-import { ConfigService } from "@nestjs/config";
 
 const r2 = new S3Client({
   region: "auto",
