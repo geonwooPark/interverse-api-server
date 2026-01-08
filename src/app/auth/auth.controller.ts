@@ -27,6 +27,7 @@ import {
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { User } from "../../common/decorators/user.decorator";
+import type { JwtPayload } from "../../common/decorators/user.decorator";
 import { ResponseMessage } from "../../common/decorators/response-message.decorator";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -133,7 +134,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: "인증 실패 (토큰 없음 또는 만료)" })
   @ApiResponse({ status: 409, description: "존재하지 않는 회원" })
   @ResponseMessage("사용자 정보를 성공적으로 가져왔습니다.")
-  async getCurrentUser(@User() user: any) {
+  async getCurrentUser(@User() user: JwtPayload) {
     return await this.authService.getCurrentUser(user.email);
   }
 
@@ -188,7 +189,10 @@ export class AuthController {
   @ApiResponse({ status: 401, description: "인증 실패 (토큰 없음 또는 만료)" })
   @ApiResponse({ status: 404, description: "존재하지 않는 회원" })
   @ResponseMessage("닉네임이 성공적으로 변경되었어요!")
-  async changeNickname(@User() user: any, @Body() dto: ChangeNicknameDto) {
+  async changeNickname(
+    @User() user: JwtPayload,
+    @Body() dto: ChangeNicknameDto
+  ) {
     return await this.authService.changeNickname(user.email, dto);
   }
 
@@ -216,7 +220,7 @@ export class AuthController {
   @ApiResponse({ status: 404, description: "존재하지 않는 회원" })
   @ResponseMessage("프로필 이미지가 성공적으로 변경되었어요!")
   async changeProfile(
-    @User() user: any,
+    @User() user: JwtPayload,
     @UploadedFile() file: Express.Multer.File
   ) {
     return await this.authService.changeProfile(user.email, file);
