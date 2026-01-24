@@ -53,7 +53,9 @@ async function bootstrap() {
     )
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    extraModels: [],
+  });
   SwaggerModule.setup("api-docs", app, document);
 
   // JSON 문서를 /api-docs/.json 경로로 노출
