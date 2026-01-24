@@ -56,6 +56,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api-docs", app, document);
 
+  // JSON 문서를 /api-docs/.json 경로로 노출
+  app.use("/api-docs.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(document);
+  });
+
   const port = process.env.PORT || 8000;
   await app.listen(port);
 
