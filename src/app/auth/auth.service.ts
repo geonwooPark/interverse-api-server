@@ -28,13 +28,15 @@ import {
   profileUploadToR2,
   deleteProfileFromR2,
 } from "../../utils/profile-upload";
+import dayjs from "../../utils/dayjs";
+import { VERIFICATION_CODE_EXPIRY_MINUTES } from "./constants";
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   getAccessToken(payload: any) {
@@ -93,7 +95,7 @@ export class AuthService {
 
     if (!user.password) {
       throw new UnauthorizedException(
-        "OAuth 사용자는 비밀번호 로그인이 불가능합니다."
+        "OAuth 사용자는 비밀번호 로그인이 불가능합니다.",
       );
     }
 
@@ -154,7 +156,9 @@ export class AuthService {
   async sendVerificationEmail(dto: SendVerificationEmailDto) {
     const { email } = dto;
     const verificationCode = Math.floor(100000 + Math.random() * 900000);
-    const currentTime = new Date();
+    const currentTime = dayjs();
+
+    await this.deleteExpiredTempUsers();
 
     const existingTempUser = await this.prisma.tempUser.findFirst({
       where: { email },
@@ -162,26 +166,28 @@ export class AuthService {
     });
 
     if (existingTempUser) {
-      const timeElapsed =
-        (currentTime.getTime() - existingTempUser.createdAt.getTime()) / 1000;
+      const secondsSinceLastSend = currentTime.diff(
+        dayjs(existingTempUser.createdAt),
+        "second",
+      );
 
-      if (timeElapsed < 30) {
+      if (secondsSinceLastSend < 30) {
         throw new HttpException(
           "이전 전송 30초 이후 재전송 가능합니다.",
-          HttpStatus.TOO_MANY_REQUESTS
+          HttpStatus.TOO_MANY_REQUESTS,
         );
       }
 
       await this.prisma.tempUser.update({
         where: { id: existingTempUser.id },
-        data: { verificationCode, createdAt: currentTime },
+        data: { verificationCode, createdAt: currentTime.toDate() },
       });
     } else {
       await this.prisma.tempUser.create({
         data: {
           email,
           verificationCode,
-          createdAt: currentTime,
+          createdAt: currentTime.toDate(),
         },
       });
     }
@@ -207,16 +213,40 @@ export class AuthService {
   async checkVerificationCode(dto: CheckVerificationCodeDto) {
     const { email, code } = dto;
 
+    await this.deleteExpiredTempUsers();
+
     const tempUser = await this.prisma.tempUser.findFirst({
       where: { email },
       orderBy: { createdAt: "desc" },
     });
 
-    if (tempUser && tempUser.verificationCode === code) {
-      return true;
-    } else {
+    if (!tempUser) {
       throw new UnauthorizedException("인증에 실패했습니다.");
     }
+
+    const expiredAt = dayjs(tempUser.createdAt).add(
+      VERIFICATION_CODE_EXPIRY_MINUTES,
+      "minute",
+    );
+    if (dayjs().isAfter(expiredAt)) {
+      throw new UnauthorizedException("인증 코드가 만료되었습니다.");
+    }
+
+    if (tempUser.verificationCode !== code) {
+      throw new UnauthorizedException("인증에 실패했습니다.");
+    }
+
+    return true;
+  }
+
+  /** 만료된 TempUser 삭제 (인증 코드 유효기간 경과) */
+  private async deleteExpiredTempUsers() {
+    const expiryThreshold = dayjs()
+      .subtract(VERIFICATION_CODE_EXPIRY_MINUTES, "minute")
+      .toDate();
+    await this.prisma.tempUser.deleteMany({
+      where: { createdAt: { lt: expiryThreshold } },
+    });
   }
 
   async checkId(dto: CheckIdDto) {
@@ -328,7 +358,7 @@ export class AuthService {
           code,
           client_id: this.configService.get<string>("GOOGLE_CLIENT_ID")!,
           client_secret: this.configService.get<string>(
-            "GOOGLE_CLIENT_SECRET"
+            "GOOGLE_CLIENT_SECRET",
           )!,
           redirect_uri: this.configService.get<string>("GOOGLE_REDIRECT_URI")!,
           grant_type: "authorization_code",
@@ -336,7 +366,7 @@ export class AuthService {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-      }
+      },
     );
 
     const { access_token } = tokenRes.data;
@@ -348,7 +378,7 @@ export class AuthService {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
 
     const { email, name, picture } = userRes.data;
