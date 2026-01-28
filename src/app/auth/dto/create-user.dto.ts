@@ -9,12 +9,12 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateUserDto {
-  @ApiProperty({ example: "user@example.com" })
+  @ApiProperty({ type: String, example: "user@example.com" })
   @IsNotEmpty({ message: "이메일을 입력해주세요." })
   @IsEmail({}, { message: "잘못된 이메일 형식입니다." })
   email: string;
 
-  @ApiProperty({ example: "mypassword123" })
+  @ApiProperty({ type: String, example: "mypassword123" })
   @IsNotEmpty({ message: "비밀번호를 입력해주세요." })
   @IsString()
   @MinLength(8, { message: "비밀번호는 최소 8자리 이상이어야 합니다." })
@@ -24,7 +24,7 @@ export class CreateUserDto {
   })
   password: string;
 
-  @ApiProperty({ example: "geonwoo", maxLength: 10 })
+  @ApiProperty({ type: String, example: "geonwoo", maxLength: 10 })
   @IsNotEmpty({ message: "이름을 입력해주세요." })
   @IsString()
   @MaxLength(10, { message: "이름은 10자 이하로 입력해주세요." })

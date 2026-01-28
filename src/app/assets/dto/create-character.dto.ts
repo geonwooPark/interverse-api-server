@@ -1,21 +1,20 @@
-import { IsString, IsNumber } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNumber } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateCharacterDto {
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @IsString()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String })
   @IsString()
   source: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: Number })
   @IsNumber()
   width: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: Number })
   @IsNumber()
   height: number;
 }
-
