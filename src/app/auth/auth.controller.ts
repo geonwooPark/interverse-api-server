@@ -42,7 +42,7 @@ import { LoginResponseDto } from "./dto/login-response.dto";
 import { UserResponseDto } from "./dto/user-response.dto";
 import { RefreshTokenResponseDto } from "./dto/refresh-token-response.dto";
 import { MessageOnlyResponseDto } from "../../common/dto/message-only-response.dto";
-import { profileUpload } from "../../utils/multer-config";
+import { profileMulterOptions } from "./configs/profile-multer.options";
 
 @ApiTags("Auth")
 @Controller("auth")
@@ -110,7 +110,7 @@ export class AuthController {
 
   @Post("signup")
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor("profile", profileUpload))
+  @UseInterceptors(FileInterceptor("profile", profileMulterOptions))
   @ApiOperation({ summary: "회원가입" })
   @ApiConsumes("multipart/form-data")
   @ApiBody({
@@ -239,7 +239,7 @@ export class AuthController {
   @Patch("change-profile")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth("bearerAuth")
-  @UseInterceptors(FileInterceptor("profile", profileUpload))
+  @UseInterceptors(FileInterceptor("profile", profileMulterOptions))
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "프로필 이미지 변경" })
   @ApiConsumes("multipart/form-data")
