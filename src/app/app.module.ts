@@ -6,6 +6,7 @@ import { AuthModule } from "./auth/auth.module";
 import { RoomsModule } from "./rooms/rooms.module";
 import { AssetsModule } from "./assets/assets.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { RedisModule } from "./redis/redis.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PrismaModule } from "./prisma/prisma.module";
       inject: [ConfigService],
     }),
     PrismaModule,
+    RedisModule,
     AuthModule,
     RoomsModule,
     AssetsModule,
