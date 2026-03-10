@@ -5,8 +5,10 @@ import {
   BadRequestException,
   ConflictException,
 } from "@nestjs/common";
+import { Cron } from "@nestjs/schedule";
 import { PrismaService } from "../prisma/prisma.service";
 import * as bcryptjs from "bcryptjs";
+import dayjs from "../../utils/dayjs";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { CheckPasswordDto } from "./dto/check-password.dto";
 
@@ -179,5 +181,28 @@ export class RoomsService {
     }
 
     return true;
+  }
+
+  @Cron("0 0 * * *", { timeZone: "Asia/Seoul" })
+  async handleStaleRoomsCron() {
+    const sevenDaysAgo = dayjs().subtract(7, "day").toDate();
+
+    const staleRooms = await this.prisma.room.findMany({
+      where: { createdAt: { lt: sevenDaysAgo } },
+    });
+
+    const toDeleteIds = staleRooms.map((r) => r.id);
+
+    if (toDeleteIds.length === 0) {
+      return;
+    }
+
+    await this.prisma.room.deleteMany({
+      where: { id: { in: toDeleteIds } },
+    });
+
+    console.log(
+      `[Rooms Cron] Deleted ${toDeleteIds.length} room(s) older than 7 days.`,
+    );
   }
 }
