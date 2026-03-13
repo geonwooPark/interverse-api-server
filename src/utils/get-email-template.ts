@@ -1,4 +1,4 @@
-export const getEmailTemplete = (code: number) => {
+export const getEmailTemplate = (code: number) => {
   return `
     <!DOCTYPE html>
     <html lang="ko">

@@ -15,8 +15,8 @@ import {
   CheckIdDto,
 } from "./dto/verification.dto";
 import { userDto } from "./dto/user.dto";
-import { getEmailTemplete } from "../../utils/getEmailTemplete";
-import { createSmtpTransport } from "../../utils/sendEmail";
+import { getEmailTemplate } from "../../utils/get-email-template";
+import { createSmtpTransport } from "../../utils/send-email";
 import axios from "axios";
 import {
   profileUploadToR2,
@@ -189,7 +189,7 @@ export class AuthService {
         from: "white0581@naver.com",
         to: email,
         subject: "인증 메일입니다.",
-        html: getEmailTemplete(verificationCode),
+        html: getEmailTemplate(verificationCode),
       });
       console.log("✅ sendMail success");
     } finally {
