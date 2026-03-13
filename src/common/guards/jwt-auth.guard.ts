@@ -3,8 +3,11 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  HttpException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+
+const TOKEN_EXPIRED_STATUS = 419;
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -24,7 +27,7 @@ export class JwtAuthGuard implements CanActivate {
       return true;
     } catch (error: any) {
       if (error?.name === "TokenExpiredError") {
-        throw new UnauthorizedException("토큰이 만료되었습니다.");
+        throw new HttpException("토큰이 만료되었습니다.", TOKEN_EXPIRED_STATUS);
       }
       throw new UnauthorizedException("유효하지 않은 토큰입니다.");
     }

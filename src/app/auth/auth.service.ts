@@ -134,9 +134,6 @@ export class AuthService {
 
       return { token: newAccessToken };
     } catch (error: any) {
-      if (error?.name === "TokenExpiredError") {
-        throw new UnauthorizedException("리프레시 토큰 만료");
-      }
       throw new UnauthorizedException("리프레시 토큰이 유효하지 않음");
     }
   }
