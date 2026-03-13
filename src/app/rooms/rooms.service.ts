@@ -1,10 +1,6 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-  BadRequestException,
-  ConflictException,
-} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { ErrorCode } from "../../constants/error-codes";
+import { CustomException } from "../../common/exceptions/custom.exception";
 import { Cron } from "@nestjs/schedule";
 import { PrismaService } from "../prisma/prisma.service";
 import * as bcryptjs from "bcryptjs";
@@ -57,7 +53,7 @@ export class RoomsService {
     });
 
     if (!room) {
-      throw new NotFoundException("방을 찾을 수 없습니다.");
+      throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
     }
 
     const isHost = room.host === userId;
@@ -77,7 +73,7 @@ export class RoomsService {
     });
 
     if (!room) {
-      throw new NotFoundException("방을 찾을 수 없습니다.");
+      throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
     }
 
     const existingLog = await this.prisma.roomLog.findFirst({
@@ -112,7 +108,7 @@ export class RoomsService {
     });
 
     if (!map) {
-      throw new BadRequestException("맵을 찾을 수 없습니다.");
+      throw new CustomException(ErrorCode.MAP_NOT_FOUND);
     }
 
     const newRoom = await this.prisma.room.create({
@@ -148,11 +144,11 @@ export class RoomsService {
     });
 
     if (!room) {
-      throw new NotFoundException("해당 방을 찾을 수 없습니다.");
+      throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
     }
 
     if (userId !== room.host) {
-      throw new ForbiddenException("해당 방을 삭제할 권한이 없습니다.");
+      throw new CustomException(ErrorCode.ROOM_DELETE_FORBIDDEN);
     }
 
     await this.prisma.$transaction([
@@ -172,12 +168,12 @@ export class RoomsService {
     });
 
     if (!roomCredential) {
-      throw new NotFoundException("방을 찾을 수 없습니다.");
+      throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
     }
 
     const pwcheck = await bcryptjs.compare(password, roomCredential.password);
     if (!pwcheck) {
-      throw new ConflictException("비밀번호가 일치하지 않습니다.");
+      throw new CustomException(ErrorCode.ROOM_PASSWORD_MISMATCH);
     }
 
     return true;

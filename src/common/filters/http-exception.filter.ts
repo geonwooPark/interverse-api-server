@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from "@nestjs/common";
+import { ErrorCode } from "../../constants/error-codes";
 import type { Response } from "express";
 
 @Catch()
@@ -15,6 +16,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = "서버 내부 오류";
+    let code: ErrorCode | null = ErrorCode.INTERNAL_SERVER_ERROR;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -33,6 +35,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
         } else {
           message = responseObj.message || exception.message;
         }
+
+        if (responseObj.code) {
+          code = responseObj.code;
+        }
       } else {
         message = exception.message;
       }
@@ -40,6 +46,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     response.status(status).json({
       message,
+      code,
       data: null,
     });
   }

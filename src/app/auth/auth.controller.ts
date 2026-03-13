@@ -12,8 +12,9 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  UnauthorizedException,
 } from "@nestjs/common";
+import { ErrorCode } from "../../constants/error-codes";
+import { CustomException } from "../../common/exceptions/custom.exception";
 import { FileInterceptor } from "@nestjs/platform-express";
 import type { Response } from "express";
 import {
@@ -102,7 +103,10 @@ export class AuthController {
     const token = req.cookies?.interverse_refreshToken || refreshToken;
 
     if (!token) {
-      throw new UnauthorizedException("리프레시 토큰 없음");
+      throw new CustomException(
+        ErrorCode.REFRESH_TOKEN_INVALID,
+        "리프레시 토큰 없음",
+      );
     }
 
     return await this.authService.refreshToken(token);

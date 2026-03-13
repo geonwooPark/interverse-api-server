@@ -1,12 +1,6 @@
-import {
-  Injectable,
-  ConflictException,
-  NotFoundException,
-  UnauthorizedException,
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { ErrorCode } from "../../constants/error-codes";
+import { CustomException } from "../../common/exceptions/custom.exception";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
@@ -58,7 +52,7 @@ export class AuthService {
     });
 
     if (existedUser) {
-      throw new ConflictException("이미 존재하는 이메일입니다.");
+      throw new CustomException(ErrorCode.USER_ALREADY_EXISTS);
     }
 
     const hashedPassword = await bcryptjs.hash(password, 12);
@@ -90,18 +84,16 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new ConflictException("존재하지 않는 회원입니다.");
+      throw new CustomException(ErrorCode.USER_NOT_FOUND);
     }
 
     if (!user.password) {
-      throw new UnauthorizedException(
-        "OAuth 사용자는 비밀번호 로그인이 불가능합니다.",
-      );
+      throw new CustomException(ErrorCode.OAUTH_PASSWORD_LOGIN_NOT_ALLOWED);
     }
 
     const pwcheck = await bcryptjs.compare(password, user.password);
     if (!pwcheck) {
-      throw new ConflictException("잘못된 비밀번호입니다.");
+      throw new CustomException(ErrorCode.INVALID_PASSWORD);
     }
 
     const payload = {
@@ -134,7 +126,7 @@ export class AuthService {
 
       return { token: newAccessToken };
     } catch (error: any) {
-      throw new UnauthorizedException("리프레시 토큰이 유효하지 않음");
+      throw new CustomException(ErrorCode.REFRESH_TOKEN_INVALID);
     }
   }
 
@@ -144,7 +136,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new ConflictException("존재하지 않는 회원입니다.");
+      throw new CustomException(ErrorCode.USER_NOT_FOUND);
     }
 
     return userDto(user);
@@ -169,9 +161,9 @@ export class AuthService {
       );
 
       if (secondsSinceLastSend < 30) {
-        throw new HttpException(
+        throw new CustomException(
+          ErrorCode.TOO_MANY_REQUESTS,
           "이전 전송 30초 이후 재전송 가능합니다.",
-          HttpStatus.TOO_MANY_REQUESTS,
         );
       }
 
@@ -218,7 +210,7 @@ export class AuthService {
     });
 
     if (!tempUser) {
-      throw new UnauthorizedException("인증에 실패했습니다.");
+      throw new CustomException(ErrorCode.VERIFICATION_FAILED);
     }
 
     const expiredAt = dayjs(tempUser.createdAt).add(
@@ -226,11 +218,11 @@ export class AuthService {
       "minute",
     );
     if (dayjs().isAfter(expiredAt)) {
-      throw new UnauthorizedException("인증 코드가 만료되었습니다.");
+      throw new CustomException(ErrorCode.VERIFICATION_CODE_EXPIRED);
     }
 
     if (tempUser.verificationCode !== code) {
-      throw new UnauthorizedException("인증에 실패했습니다.");
+      throw new CustomException(ErrorCode.VERIFICATION_FAILED);
     }
 
     return true;
@@ -254,7 +246,7 @@ export class AuthService {
     });
 
     if (isExistingUser) {
-      throw new ConflictException("가입이 불가능한 이메일입니다.");
+      throw new CustomException(ErrorCode.EMAIL_NOT_AVAILABLE);
     }
 
     return true;
@@ -270,7 +262,10 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException("해당 이메일의 유저를 찾을 수 없습니다.");
+      throw new CustomException(
+        ErrorCode.USER_NOT_FOUND,
+        "해당 이메일의 유저를 찾을 수 없습니다.",
+      );
     }
 
     await this.prisma.user.update({
@@ -289,7 +284,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException("존재하지 않는 회원입니다.");
+      throw new CustomException(ErrorCode.USER_NOT_FOUND);
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -306,11 +301,14 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException("존재하지 않는 회원입니다.");
+      throw new CustomException(ErrorCode.USER_NOT_FOUND);
     }
 
     if (!file) {
-      throw new BadRequestException("프로필 이미지가 필요합니다.");
+      throw new CustomException(
+        ErrorCode.BAD_REQUEST,
+        "프로필 이미지가 필요합니다.",
+      );
     }
 
     // 기존 프로필 이미지가 있으면 삭제
@@ -343,7 +341,10 @@ export class AuthService {
 
   async handleGoogleCallback(code: string) {
     if (!code) {
-      throw new BadRequestException("Authorization code가 없습니다.");
+      throw new CustomException(
+        ErrorCode.BAD_REQUEST,
+        "Authorization code가 없습니다.",
+      );
     }
 
     // access_token 요청
